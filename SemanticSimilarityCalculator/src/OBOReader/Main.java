@@ -1,7 +1,7 @@
 /**
  * 
  */
-package GOquery;
+package OBOReader;
 
 /**
  * @author zbvd935
