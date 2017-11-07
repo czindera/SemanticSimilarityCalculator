@@ -6,21 +6,24 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
+import org.jgrapht.experimental.dag.DirectedAcyclicGraph.CycleFoundException;
 
 public class DagBuilder {
-	private BufferedReader in;
+	private BufferedReader in,in2;
 	private String buffer;
 	private DirectedAcyclicGraph<Term,ConnectionType> dag;
+	private Terms terms;
 
 	DagBuilder() {
 		this.buffer = null;
+		this.terms = new Terms();
 		this.dag = new DirectedAcyclicGraph<Term,ConnectionType>(ConnectionType.class);
-		try {
-			parse();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			try {
+				parse();
+			} catch (IOException | CycleFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	}
 
 	/**
@@ -68,7 +71,6 @@ public class DagBuilder {
 				newTerm.id = line.substring(colon+1).trim();
 				continue;
 				}
-			//if(t==null) continue;
 			if(line.startsWith("name:"))
 				{
 				newTerm.name=nocomment(line.substring(colon+1));
@@ -84,30 +86,50 @@ public class DagBuilder {
 				newTerm.def=nocomment(line.substring(colon+1));
 				continue;
 				}
-			dag.addVertex(newTerm);
+			System.out.println("NEW TERM ADDED TO COLLECTION!\n"+terms.addTerm(newTerm));
+			System.out.println("New Node added to DAG: "+dag.addVertex(newTerm));
 		}
 	}
 	
 	/**
-	 * 
+	 * This method reads and adds the is_a connections as edges to the DAG
 	 * @throws IOException
+	 * @throws CycleFoundException 
 	 */
-	/*private void createEdges() throws IOException {
-		if(line.startsWith("is_a:"))
-		{
-		String rel=nocomment(line.substring(colon+1));
-		t.is_a.add(rel);
-		Term parent=getTermById(rel,true);
-		parent.children.add(t.id);
-		continue;
+	private void createEdges() throws IOException, CycleFoundException {
+		String line;
+		String fromVertex=null;
+		String toVertex=null;
+		while((line=next())!=null) {
+			if(line.startsWith("["))
+				{
+				this.buffer=line;
+				break;
+				}
+			int colon=line.indexOf(':');
+			if(colon==-1) continue;
+			if(line.startsWith("id:"))
+				{
+				fromVertex= line.substring(colon+1).trim();
+				continue;
+				}
+			if(line.startsWith("is_a:"))
+				{
+				toVertex = nocomment(line.substring(colon+1));
+				Term fromNode = terms.get(fromVertex);
+				Term toNode = terms.get(toVertex);
+				System.out.println("New EDGE added: "+dag.addDagEdge(fromNode, toNode, ConnectionType.IS_A));
+				continue;
+				}
 		}
-	}*/
+	}
 	
 	/**
 	 * parse the whole file
 	 * @throws IOException
+	 * @throws CycleFoundException 
 	 */
-	private void parse() throws IOException {
+	private void parse() throws IOException, CycleFoundException {
 		InputStream input = getClass().getResourceAsStream("go_basic.obo");
 		in=new BufferedReader(new InputStreamReader(input));
 		String line;
@@ -115,5 +137,11 @@ public class DagBuilder {
 			if(line.equals("[Term]")) parseTerm();
 		}
 		in.close();
+		buffer=null;
+		in2=new BufferedReader(new InputStreamReader(input));
+		while((line=next())!=null) {
+			if(line.equals("[Term]")) createEdges();
+		}
+		in2.close();
 	}
 }

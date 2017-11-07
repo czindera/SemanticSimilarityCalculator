@@ -20,4 +20,8 @@ public class Term {
 		this.namespace = null;
 		this.def = null;
 	}
+	
+	public String toString() {
+		return "id: "+this.id+"\nname: "+this.name+"\nnamespace: "+this.namespace+"\ndef: "+this.def;
+	}
 }
