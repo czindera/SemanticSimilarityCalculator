@@ -9,7 +9,7 @@ import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph.CycleFoundException;
 
 public class DagBuilder {
-	private BufferedReader in;
+	private BufferedReader in,in2;
 	private String buffer;
 	private DirectedAcyclicGraph<Term,ConnectionType> dag;
 	private Terms terms;
@@ -84,11 +84,12 @@ public class DagBuilder {
 			else if(line.startsWith("def:"))
 				{
 				newTerm.def=nocomment(line.substring(colon+1));
+				//System.out.println("NEW TERM ADDED TO COLLECTION!");
+				terms.addTerm(newTerm);
+				System.out.println("New Node added to DAG: "+dag.addVertex(newTerm));
 				continue;
 				}
 		}
-		System.out.println("NEW TERM ADDED TO COLLECTION!\n"+terms.addTerm(newTerm));
-		System.out.println("New Node added to DAG: "+dag.addVertex(newTerm));
 	}
 	
 	/**
@@ -138,12 +139,13 @@ public class DagBuilder {
 		while((line=next())!=null) {
 			if(line.equals("[Term]")) parseTerm();
 		}
+		//terms.printTerms();
 		in.close();
-		buffer=null;
-		in=new BufferedReader(fr);
+		/*buffer=null;
+		in2=new BufferedReader(fr);
 		while((line=next())!=null) {
 			if(line.equals("[Term]")) createEdges();
 		}
-		in.close();
+		in2.close();*/
 	}
 }
