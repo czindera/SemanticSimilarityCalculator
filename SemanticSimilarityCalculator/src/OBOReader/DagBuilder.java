@@ -1,15 +1,15 @@
 package OBOReader;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph.CycleFoundException;
 
 public class DagBuilder {
-	private BufferedReader in,in2;
+	private BufferedReader in;
 	private String buffer;
 	private DirectedAcyclicGraph<Term,ConnectionType> dag;
 	private Terms terms;
@@ -52,7 +52,7 @@ public class DagBuilder {
 	}
 	
 	/**
-	 * parse one Term
+	 * parse one Term and add it to the collection of Terms and as a DAG Vertex
 	 * @throws IOException
 	 */
 	private void parseTerm() throws IOException {
@@ -86,9 +86,9 @@ public class DagBuilder {
 				newTerm.def=nocomment(line.substring(colon+1));
 				continue;
 				}
-			System.out.println("NEW TERM ADDED TO COLLECTION!\n"+terms.addTerm(newTerm));
-			System.out.println("New Node added to DAG: "+dag.addVertex(newTerm));
 		}
+		System.out.println("NEW TERM ADDED TO COLLECTION!\n"+terms.addTerm(newTerm));
+		System.out.println("New Node added to DAG: "+dag.addVertex(newTerm));
 	}
 	
 	/**
@@ -130,18 +130,20 @@ public class DagBuilder {
 	 * @throws CycleFoundException 
 	 */
 	private void parse() throws IOException, CycleFoundException {
-		InputStream input = getClass().getResourceAsStream("go_basic.obo");
-		in=new BufferedReader(new InputStreamReader(input));
+		ClassLoader cl = getClass().getClassLoader();
+		File file = new File(cl.getResource("./OBOfiles/go-test.obo").getFile());
+	    FileReader fr = new FileReader(file);
+		in=new BufferedReader(fr);
 		String line;
 		while((line=next())!=null) {
 			if(line.equals("[Term]")) parseTerm();
 		}
 		in.close();
 		buffer=null;
-		in2=new BufferedReader(new InputStreamReader(input));
+		in=new BufferedReader(fr);
 		while((line=next())!=null) {
 			if(line.equals("[Term]")) createEdges();
 		}
-		in2.close();
+		in.close();
 	}
 }
