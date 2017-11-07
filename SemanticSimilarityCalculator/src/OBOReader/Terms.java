@@ -20,7 +20,7 @@ public class Terms {
 	}
 	
 	public void printTerms() {
-		Terms.forEach((key, value) -> System.out.println(key + " : " + value));
+		Terms.forEach((key, value) -> System.out.println(value));
 	}
 
 }

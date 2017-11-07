@@ -139,7 +139,7 @@ public class DagBuilder {
 		while((line=next())!=null) {
 			if(line.equals("[Term]")) parseTerm();
 		}
-		//terms.printTerms();
+		terms.printTerms();
 		in.close();
 		/*buffer=null;
 		in2=new BufferedReader(fr);
