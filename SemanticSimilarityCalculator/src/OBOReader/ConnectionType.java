@@ -4,6 +4,7 @@ import org.jgrapht.graph.*;
 
 //https://github.com/jgrapht/jgrapht/wiki/LabeledEdges
 
+@SuppressWarnings("serial")
 public class ConnectionType<V> extends DefaultEdge {
 	private V v1;
     private V v2;
