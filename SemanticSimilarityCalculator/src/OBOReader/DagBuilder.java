@@ -27,18 +27,21 @@ public class DagBuilder {
 	}
 
 	/**
-	 * 
+	 * Reads the next line while making sure that buffer line will be emptied
 	 * @return the next line
 	 * @throws IOException
 	 */
-	private String next() throws IOException {
+	private String next(int i) throws IOException {
 		if(buffer!=null) {
 			String s=buffer;
 			buffer=null;
 			return s;
 		}
-		return in.readLine();
+		if (i==0) {
+			return in.readLine();
+		} else return in2.readLine();
 	}
+	
 	
 	/**
 	 * This method is to trim the comments from a line
@@ -58,7 +61,7 @@ public class DagBuilder {
 	private void parseTerm() throws IOException {
 		String line;
 		Term newTerm = new Term();
-		while((line=next())!=null) {
+		while((line=next(0))!=null) {
 			if(line.startsWith("["))
 				{
 				this.buffer=line;
@@ -101,7 +104,7 @@ public class DagBuilder {
 		String line;
 		String fromVertex=null;
 		String toVertex=null;
-		while((line=next())!=null) {
+		while((line=next(1))!=null) {
 			if(line.startsWith("["))
 				{
 				this.buffer=line;
@@ -117,6 +120,7 @@ public class DagBuilder {
 			if(line.startsWith("is_a:"))
 				{
 				toVertex = nocomment(line.substring(colon+1));
+				System.out.println("To be connected to: "+toVertex);
 				Term fromNode = terms.get(fromVertex);
 				Term toNode = terms.get(toVertex);
 				System.out.println("New EDGE added: "+dag.addDagEdge(fromNode, toNode, ConnectionType.IS_A));
@@ -126,26 +130,30 @@ public class DagBuilder {
 	}
 	
 	/**
-	 * parse the whole file
+	 * parse the whole file 2 times, first creating all Vertices, then adding the Edges
+	 * currently only working for is_a connections
 	 * @throws IOException
 	 * @throws CycleFoundException 
 	 */
 	private void parse() throws IOException, CycleFoundException {
 		ClassLoader cl = getClass().getClassLoader();
-		File file = new File(cl.getResource("./OBOfiles/go-test.obo").getFile());
+		File file = new File(cl.getResource("./OBOfiles/go-basic.obo").getFile());
+		File file2 = new File(cl.getResource("./OBOfiles/go-basic.obo").getFile());
 	    FileReader fr = new FileReader(file);
+	    FileReader fr2 = new FileReader(file2);
 		in=new BufferedReader(fr);
+		in2=new BufferedReader(fr2);
 		String line;
-		while((line=next())!=null) {
+		while((line=next(0))!=null) {
 			if(line.equals("[Term]")) parseTerm();
 		}
-		terms.printTerms();
 		in.close();
-		/*buffer=null;
-		in2=new BufferedReader(fr);
-		while((line=next())!=null) {
+		//terms.printTerms();
+		buffer=null;
+		while((line=next(1))!=null) {
 			if(line.equals("[Term]")) createEdges();
 		}
-		in2.close();*/
+		in2.close();
+		System.out.println("Finished Building DAG!");
 	}
 }
