@@ -5,19 +5,23 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph.CycleFoundException;
 
 public class DagBuilder {
 	private BufferedReader in,in2;
 	private String buffer;
-	private DirectedAcyclicGraph<Term,ConnectionType> dag;
+	//private DirectedAcyclicGraph<Term,ConnectionType> dag;
+	private DirectedAcyclicGraph<Term, DefaultEdge> dag2;
 	private Terms terms;
+	//private DefaultEdge is_a;
 
 	DagBuilder() {
 		this.buffer = null;
 		this.terms = new Terms();
-		this.dag = new DirectedAcyclicGraph<Term,ConnectionType>(ConnectionType.class);
+		//this.dag = new DirectedAcyclicGraph<Term,ConnectionType>(ConnectionType.class);
+		this.dag2 = new DirectedAcyclicGraph<>(DefaultEdge.class);
 			try {
 				parse();
 			} catch (IOException | CycleFoundException e) {
@@ -89,7 +93,8 @@ public class DagBuilder {
 				newTerm.def=nocomment(line.substring(colon+1));
 				//System.out.println("NEW TERM ADDED TO COLLECTION!");
 				terms.addTerm(newTerm);
-				System.out.println("New Node added to DAG: "+dag.addVertex(newTerm));
+				//System.out.println("New Node added to DAG: "+dag.addVertex(newTerm));
+				System.out.println("New Node added to DAG: "+dag2.addVertex(newTerm));
 				continue;
 				}
 		}
@@ -120,10 +125,10 @@ public class DagBuilder {
 			if(line.startsWith("is_a:"))
 				{
 				toVertex = nocomment(line.substring(colon+1));
-				System.out.println("To be connected to: "+toVertex);
+				System.out.println(fromVertex+" to be connected to: "+toVertex);
 				Term fromNode = terms.get(fromVertex);
 				Term toNode = terms.get(toVertex);
-				System.out.println("New EDGE added: "+dag.addDagEdge(fromNode, toNode, ConnectionType.IS_A));
+				dag2.addEdge(fromNode, toNode);
 				continue;
 				}
 		}
@@ -155,5 +160,12 @@ public class DagBuilder {
 		}
 		in2.close();
 		System.out.println("Finished Building DAG!");
+		printEdges();
+	}
+	
+	private void printEdges() {
+		for(DefaultEdge e : dag2.edgeSet()){
+		    System.out.println(dag2.getEdgeSource(e).id + " --> " + dag2.getEdgeTarget(e).id);
+		}
 	}
 }
