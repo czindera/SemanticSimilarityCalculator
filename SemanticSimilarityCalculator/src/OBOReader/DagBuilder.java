@@ -6,8 +6,8 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import org.jgraph.graph.DefaultEdge;
-import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
-import org.jgrapht.experimental.dag.DirectedAcyclicGraph.CycleFoundException;
+import org.jgrapht.graph.DirectedAcyclicGraph;
+
 
 public class DagBuilder {
 	private BufferedReader in,in2;
@@ -22,12 +22,14 @@ public class DagBuilder {
 		this.terms = new Terms();
 		//this.dag = new DirectedAcyclicGraph<Term,ConnectionType>(ConnectionType.class);
 		this.dag2 = new DirectedAcyclicGraph<>(DefaultEdge.class);
-			try {
-				parse();
-			} catch (IOException | CycleFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			
+				try {
+					parse();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			
 	}
 
 	/**
@@ -105,7 +107,7 @@ public class DagBuilder {
 	 * @throws IOException
 	 * @throws CycleFoundException 
 	 */
-	private void createEdges() throws IOException, CycleFoundException {
+	private void createEdges() throws IOException {
 		String line;
 		String fromVertex=null;
 		String toVertex=null;
@@ -140,7 +142,7 @@ public class DagBuilder {
 	 * @throws IOException
 	 * @throws CycleFoundException 
 	 */
-	private void parse() throws IOException, CycleFoundException {
+	private void parse() throws IOException {
 		ClassLoader cl = getClass().getClassLoader();
 		File file = new File(cl.getResource("./OBOfiles/go-basic.obo").getFile());
 		File file2 = new File(cl.getResource("./OBOfiles/go-basic.obo").getFile());
