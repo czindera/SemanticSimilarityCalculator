@@ -37,7 +37,7 @@ public class Reader {
 	while((line=next())!=null) {
 		if(!line.startsWith("!")) {
 			String[] words = line.split("\\s+");
-			System.out.println(words[3]); //GO IDs
+			//System.out.println(words[3]); //GO IDs
 		}
 	}
 	}

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
 
 import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
@@ -12,7 +13,6 @@ import org.jgrapht.experimental.dag.DirectedAcyclicGraph.CycleFoundException;
 public class DagBuilder {
 	private BufferedReader in,in2;
 	private String buffer;
-	//private DirectedAcyclicGraph<Term,ConnectionType> dag;
 	private DirectedAcyclicGraph<Term, DefaultEdge> dagBP,dagMF,dagCC;
 	private Terms terms;
 	//private DefaultEdge is_a;
@@ -198,4 +198,45 @@ public class DagBuilder {
 		    System.out.println(thisDAG.getEdgeSource(e).id + " --> " + thisDAG.getEdgeTarget(e).id);
 		}
 	}
+	
+	/**
+	 * Prints info about a given Term, degree number, ancestors, children
+	 * @param nodeID
+	 */
+	public void printNodeInfo(String nodeID){
+		if (terms.get(nodeID) !=null){
+			String namespace = terms.get(nodeID).namespace;
+			Term thisTerm = terms.get(nodeID);
+			DirectedAcyclicGraph<Term, DefaultEdge> thisDag;
+			if (namespace.equals("biological_process")){
+				thisDag = this.dagBP;
+			} 
+			else if (namespace.equals("cellular_component")){
+				thisDag = this.dagCC;
+			} 
+			else if (namespace.equals("molecular_function")){
+				thisDag = this.dagMF;
+			} else {
+				System.out.println("Non existing GO Term");
+				return;
+			}
+			System.out.println("Term found: "+thisDag.containsVertex(thisTerm));
+			System.out.println("............Information about this term..............");
+			System.out.println(thisTerm.toString());
+			//System.out.println("The degree of this Node is: "+thisDag.degreeOf(thisTerm));
+			Iterator<Term> myAncIterator = thisDag.getAncestors(thisDag, thisTerm).iterator();
+			System.out.println(".....................Ancestors.......................");
+			while (myAncIterator.hasNext()){
+				Term nextTerm = myAncIterator.next();
+				System.out.println(nextTerm.toString());
+			}
+			Iterator<Term> myChildIterator = thisDag.getDescendants(thisDag, thisTerm).iterator();
+			System.out.println(".....................Descendents.....................");
+			while (myChildIterator.hasNext()){
+				Term nextTerm = myChildIterator.next();
+				System.out.println(nextTerm.toString());
+			}
+		}
+	}
+	
 }
