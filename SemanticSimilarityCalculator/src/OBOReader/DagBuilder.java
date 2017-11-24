@@ -153,6 +153,7 @@ public class DagBuilder {
 			if(line.equals("[Term]")) parseTerm();
 		}
 		in.close();
+		
 		//terms.printTerms();
 		buffer=null;
 		while((line=next(1))!=null) {
