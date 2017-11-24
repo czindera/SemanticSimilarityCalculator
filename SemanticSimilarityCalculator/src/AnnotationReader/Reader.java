@@ -8,17 +8,23 @@ import java.io.IOException;
 import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 
+import OBOReader.DagBuilder;
 import OBOReader.Term;
 
 public class Reader {
 	private BufferedReader in;
 	private String buffer;
-	private DirectedAcyclicGraph<Term, DefaultEdge> annotationDAG;
+	private DirectedAcyclicGraph<Term, DefaultEdge> annotDagBP,annotDagMF,annotDagCC;
+	//private DirectedAcyclicGraph<Term, DefaultEdge> dagMF,dagBP,dagCC;
+	DagBuilder dags;
 	
 	public Reader(){
 		in=null;
 		buffer = null;
-		this.annotationDAG = new DirectedAcyclicGraph<>(DefaultEdge.class);
+		this.annotDagBP = new DirectedAcyclicGraph<>(DefaultEdge.class);
+		this.annotDagMF = new DirectedAcyclicGraph<>(DefaultEdge.class);
+		this.annotDagCC = new DirectedAcyclicGraph<>(DefaultEdge.class);
+		this.dags = new DagBuilder();
 		try {
 			parse();
 		} catch (IOException e) {
@@ -45,8 +51,10 @@ public class Reader {
 		while((line=next())!=null) {
 			if(!line.startsWith("!")) {
 				String[] words = line.split("\\s+");
+				String goID = words[3];
 				//System.out.println(words[3]); //GO IDs
-				if (words[3].startsWith("GO")){
+				if (goID.startsWith("GO")){
+					DirectedAcyclicGraph<Term, DefaultEdge> thisDag = this.dags.dagDecider(goID); //check if returned not null
 					
 				}
 			}

@@ -54,6 +54,14 @@ public class DagBuilder {
 	public DirectedAcyclicGraph<Term, DefaultEdge> getDagMF(){
 		return this.dagMF;
 	}
+	
+	/**
+	 * 
+	 * @return all terms
+	 */
+	public Terms getTerms(){
+		return this.terms;
+	}
 
 	/**
 	 * Reads the next line while making sure that buffer line will be emptied
@@ -224,26 +232,38 @@ public class DagBuilder {
 	}
 	
 	/**
+	 * According to a given termID choose and return the relevant DAG
+	 * @param termID
+	 * @return BP/MF/CC DAG
+	 */
+	public DirectedAcyclicGraph<Term, DefaultEdge> dagDecider(String termID){
+		if (terms.get(termID) !=null){
+			String namespace = terms.get(termID).namespace;
+			if (namespace.equals("biological_process")){
+				return this.dagBP;
+			} 
+			else if (namespace.equals("cellular_component")){
+				return this.dagCC;
+			} 
+			else if (namespace.equals("molecular_function")){
+				return this.dagMF;
+			} else {
+				System.out.println("Non existing GO Term");
+				return null;
+			}
+			}
+		return null;
+	}
+	
+	/**
 	 * Prints info about a given Term, it's ancestors and children
 	 * @param nodeID
 	 */
 	public void printNodeInfo(String nodeID){
 		if (terms.get(nodeID) !=null){
-			String namespace = terms.get(nodeID).namespace;
 			Term thisTerm = terms.get(nodeID);
-			DirectedAcyclicGraph<Term, DefaultEdge> thisDag;
-			if (namespace.equals("biological_process")){
-				thisDag = this.dagBP;
-			} 
-			else if (namespace.equals("cellular_component")){
-				thisDag = this.dagCC;
-			} 
-			else if (namespace.equals("molecular_function")){
-				thisDag = this.dagMF;
-			} else {
-				System.out.println("Non existing GO Term");
-				return;
-			}
+			DirectedAcyclicGraph<Term, DefaultEdge> thisDag = dagDecider(nodeID);
+			
 			System.out.println("Term found: "+thisDag.containsVertex(thisTerm));
 			System.out.println("............Information about this term..............");
 			System.out.println(thisTerm.toString());
