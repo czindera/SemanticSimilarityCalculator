@@ -25,6 +25,10 @@ public class Term {
 		return this.namespace;
 	}
 	
+	public String getID(){
+		return this.id;
+	}
+	
 	public String toString() {
 		return "id: "+this.id+"\nname: "+this.name+"\nnamespace: "+this.namespace+"\ndef: "+this.def;
 	}
