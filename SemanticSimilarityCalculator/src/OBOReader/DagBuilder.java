@@ -17,7 +17,7 @@ public class DagBuilder {
 	private Terms terms;
 	//private DefaultEdge is_a;
 
-	DagBuilder() {
+	public DagBuilder() {
 		this.buffer = null;
 		this.terms = new Terms();
 		this.dagBP = new DirectedAcyclicGraph<>(DefaultEdge.class);
