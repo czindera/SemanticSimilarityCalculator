@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
 
 import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
@@ -12,22 +13,54 @@ import org.jgrapht.experimental.dag.DirectedAcyclicGraph.CycleFoundException;
 public class DagBuilder {
 	private BufferedReader in,in2;
 	private String buffer;
-	//private DirectedAcyclicGraph<Term,ConnectionType> dag;
-	private DirectedAcyclicGraph<Term, DefaultEdge> dag2;
+	private DirectedAcyclicGraph<Term, DefaultEdge> dagBP,dagMF,dagCC;
 	private Terms terms;
 	//private DefaultEdge is_a;
 
-	DagBuilder() {
+	public DagBuilder() {
 		this.buffer = null;
 		this.terms = new Terms();
-		//this.dag = new DirectedAcyclicGraph<Term,ConnectionType>(ConnectionType.class);
-		this.dag2 = new DirectedAcyclicGraph<>(DefaultEdge.class);
+		this.dagBP = new DirectedAcyclicGraph<>(DefaultEdge.class);
+		this.dagMF = new DirectedAcyclicGraph<>(DefaultEdge.class);
+		this.dagCC = new DirectedAcyclicGraph<>(DefaultEdge.class);
 			try {
 				parse();
 			} catch (IOException | CycleFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+	}
+	
+	/**
+	 * 
+	 * @return BP DAG
+	 */
+	public DirectedAcyclicGraph<Term, DefaultEdge> getDagBP(){
+		return this.dagBP;
+	}
+	
+	/**
+	 * 
+	 * @return CC DAG
+	 */
+	public DirectedAcyclicGraph<Term, DefaultEdge> getDagCC(){
+		return this.dagCC;
+	}
+	
+	/**
+	 * 
+	 * @return MF DAG
+	 */
+	public DirectedAcyclicGraph<Term, DefaultEdge> getDagMF(){
+		return this.dagMF;
+	}
+	
+	/**
+	 * 
+	 * @return all terms
+	 */
+	public Terms getTerms(){
+		return this.terms;
 	}
 
 	/**
@@ -91,10 +124,19 @@ public class DagBuilder {
 			else if(line.startsWith("def:"))
 				{
 				newTerm.def=nocomment(line.substring(colon+1));
-				//System.out.println("NEW TERM ADDED TO COLLECTION!");
 				terms.addTerm(newTerm);
-				//System.out.println("New Node added to DAG: "+dag.addVertex(newTerm));
-				System.out.println("New Node added to DAG: "+dag2.addVertex(newTerm));
+				if (newTerm.namespace.equals("molecular_function")){
+					dagMF.addVertex(newTerm);
+				}
+				else if (newTerm.namespace.equals("biological_process")){
+					dagBP.addVertex(newTerm);	
+				}
+				else if (newTerm.namespace.equals("cellular_component")){
+					dagCC.addVertex(newTerm);
+				}
+				else {
+					System.out.println("TERM WAS NOT ADDED, NO NAMESPACE!");
+				}
 				continue;
 				}
 		}
@@ -125,10 +167,22 @@ public class DagBuilder {
 			if(line.startsWith("is_a:"))
 				{
 				toVertex = nocomment(line.substring(colon+1));
-				System.out.println(fromVertex+" to be connected to: "+toVertex);
+				//System.out.println(fromVertex+" to be connected to: "+toVertex);
 				Term fromNode = terms.get(fromVertex);
 				Term toNode = terms.get(toVertex);
-				dag2.addEdge(fromNode, toNode);
+				if (fromNode.namespace.equals("molecular_function") && toNode.namespace.equals("molecular_function")){
+					dagMF.addEdge(fromNode, toNode);
+				}
+				else if (fromNode.namespace.equals("biological_process") && toNode.namespace.equals("biological_process")){
+					dagBP.addEdge(fromNode, toNode);
+				} 
+				else if (fromNode.namespace.equals("cellular_component") && toNode.namespace.equals("cellular_component")){
+					dagCC.addEdge(fromNode, toNode);
+				}
+				else {
+					System.out.println("FAILED TO ADD TO DAG, not belonging to the same NAMESPACE");
+				}
+				
 				continue;
 				}
 		}
@@ -160,13 +214,60 @@ public class DagBuilder {
 			if(line.equals("[Term]")) createEdges();
 		}
 		in2.close();
-		System.out.println("Finished Building DAG!");
-		printEdges();
+		System.out.println("Finished Building DAGs!");
+		
 	}
 	
-	private void printEdges() {
-		for(DefaultEdge e : dag2.edgeSet()){
-		    System.out.println(dag2.getEdgeSource(e).id + " --> " + dag2.getEdgeTarget(e).id);
+	/**
+	 * According to a given termID choose and return the relevant DAG
+	 * @param termID
+	 * @return BP/MF/CC DAG
+	 */
+	public DirectedAcyclicGraph<Term, DefaultEdge> dagDecider(String termID){
+		if (terms.get(termID) !=null){
+			String namespace = terms.get(termID).namespace;
+			if (namespace.equals("biological_process")){
+				return this.dagBP;
+			} 
+			else if (namespace.equals("cellular_component")){
+				return this.dagCC;
+			} 
+			else if (namespace.equals("molecular_function")){
+				return this.dagMF;
+			} else {
+				System.out.println("Non existing GO Term");
+				return null;
+			}
+			}
+		return null;
+	}
+	
+	/**
+	 * Prints info about a given Term, it's ancestors and children
+	 * @param nodeID
+	 */
+	public void printNodeInfo(String nodeID){
+		if (terms.get(nodeID) !=null){
+			Term thisTerm = terms.get(nodeID);
+			DirectedAcyclicGraph<Term, DefaultEdge> thisDag = dagDecider(nodeID);
+			
+			System.out.println("Term found: "+thisDag.containsVertex(thisTerm));
+			System.out.println("............Information about this term..............");
+			System.out.println(thisTerm.toString());
+			//System.out.println("The degree of this Node is: "+thisDag.degreeOf(thisTerm));
+			Iterator<Term> myAncIterator = thisDag.getAncestors(thisDag, thisTerm).iterator();
+			System.out.println(".....................Ancestors.......................");
+			while (myAncIterator.hasNext()){
+				Term nextTerm = myAncIterator.next();
+				System.out.println(nextTerm.toString());
+			}
+			Iterator<Term> myChildIterator = thisDag.getDescendants(thisDag, thisTerm).iterator();
+			System.out.println(".....................Descendents.....................");
+			while (myChildIterator.hasNext()){
+				Term nextTerm = myChildIterator.next();
+				System.out.println(nextTerm.toString());
+			}
 		}
 	}
+	
 }

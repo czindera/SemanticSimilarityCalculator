@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 
 public class Terms {
 	HashMap<String,Term> Terms;
-	Term term;
+	//Term term;
 	
 	Terms() {
 		Terms = new LinkedHashMap<String,Term>();
