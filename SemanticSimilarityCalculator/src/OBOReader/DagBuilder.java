@@ -13,15 +13,16 @@ public class DagBuilder {
 	private BufferedReader in,in2;
 	private String buffer;
 	//private DirectedAcyclicGraph<Term,ConnectionType> dag;
-	private DirectedAcyclicGraph<Term, DefaultEdge> dag2;
+	private DirectedAcyclicGraph<Term, DefaultEdge> dagBP,dagMF,dagCC;
 	private Terms terms;
 	//private DefaultEdge is_a;
 
 	DagBuilder() {
 		this.buffer = null;
 		this.terms = new Terms();
-		//this.dag = new DirectedAcyclicGraph<Term,ConnectionType>(ConnectionType.class);
-		this.dag2 = new DirectedAcyclicGraph<>(DefaultEdge.class);
+		this.dagBP = new DirectedAcyclicGraph<>(DefaultEdge.class);
+		this.dagMF = new DirectedAcyclicGraph<>(DefaultEdge.class);
+		this.dagCC = new DirectedAcyclicGraph<>(DefaultEdge.class);
 			try {
 				parse();
 			} catch (IOException | CycleFoundException e) {
@@ -91,10 +92,19 @@ public class DagBuilder {
 			else if(line.startsWith("def:"))
 				{
 				newTerm.def=nocomment(line.substring(colon+1));
-				//System.out.println("NEW TERM ADDED TO COLLECTION!");
 				terms.addTerm(newTerm);
-				//System.out.println("New Node added to DAG: "+dag.addVertex(newTerm));
-				System.out.println("New Node added to DAG: "+dag2.addVertex(newTerm));
+				if (newTerm.namespace.equals("molecular_function")){
+					dagMF.addVertex(newTerm);
+				}
+				else if (newTerm.namespace.equals("biological_process")){
+					dagBP.addVertex(newTerm);	
+				}
+				else if (newTerm.namespace.equals("cellular_component")){
+					dagCC.addVertex(newTerm);
+				}
+				else {
+					System.out.println("TERM WAS NOT ADDED, NO NAMESPACE!");
+				}
 				continue;
 				}
 		}
@@ -125,10 +135,22 @@ public class DagBuilder {
 			if(line.startsWith("is_a:"))
 				{
 				toVertex = nocomment(line.substring(colon+1));
-				System.out.println(fromVertex+" to be connected to: "+toVertex);
+				//System.out.println(fromVertex+" to be connected to: "+toVertex);
 				Term fromNode = terms.get(fromVertex);
 				Term toNode = terms.get(toVertex);
-				dag2.addEdge(fromNode, toNode);
+				if (fromNode.namespace.equals("molecular_function") && toNode.namespace.equals("molecular_function")){
+					dagMF.addEdge(fromNode, toNode);
+				}
+				else if (fromNode.namespace.equals("biological_process") && toNode.namespace.equals("biological_process")){
+					dagBP.addEdge(fromNode, toNode);
+				} 
+				else if (fromNode.namespace.equals("cellular_component") && toNode.namespace.equals("cellular_component")){
+					dagCC.addEdge(fromNode, toNode);
+				}
+				else {
+					System.out.println("FAILED TO ADD TO DAG, not belonging to the same NAMESPACE");
+				}
+				
 				continue;
 				}
 		}
@@ -159,13 +181,20 @@ public class DagBuilder {
 			if(line.equals("[Term]")) createEdges();
 		}
 		in2.close();
-		System.out.println("Finished Building DAG!");
-		printEdges();
+		System.out.println("Finished Building DAGs!");
+		
+		//System.out.println("Printing MF DAG");
+		//printEdges(dagMF);
+		//System.out.println("Printing CC DAG");
+		//printEdges(dagCC);
+		//System.out.println("Printing BP DAG");
+		//printEdges(dagBP);
 	}
 	
-	private void printEdges() {
-		for(DefaultEdge e : dag2.edgeSet()){
-		    System.out.println(dag2.getEdgeSource(e).id + " --> " + dag2.getEdgeTarget(e).id);
+	@SuppressWarnings("unused")
+	private void printEdges(DirectedAcyclicGraph<Term, DefaultEdge> thisDAG) {
+		for(DefaultEdge e : thisDAG.edgeSet()){
+		    System.out.println(thisDAG.getEdgeSource(e).id + " --> " + thisDAG.getEdgeTarget(e).id);
 		}
 	}
 }
