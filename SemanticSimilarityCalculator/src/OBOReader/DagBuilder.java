@@ -30,6 +30,30 @@ public class DagBuilder {
 				e.printStackTrace();
 			}
 	}
+	
+	/**
+	 * 
+	 * @return BP DAG
+	 */
+	public DirectedAcyclicGraph<Term, DefaultEdge> getDagBP(){
+		return this.dagBP;
+	}
+	
+	/**
+	 * 
+	 * @return CC DAG
+	 */
+	public DirectedAcyclicGraph<Term, DefaultEdge> getDagCC(){
+		return this.dagCC;
+	}
+	
+	/**
+	 * 
+	 * @return MF DAG
+	 */
+	public DirectedAcyclicGraph<Term, DefaultEdge> getDagMF(){
+		return this.dagMF;
+	}
 
 	/**
 	 * Reads the next line while making sure that buffer line will be emptied
@@ -200,7 +224,7 @@ public class DagBuilder {
 	}
 	
 	/**
-	 * Prints info about a given Term, degree number, ancestors, children
+	 * Prints info about a given Term, it's ancestors and children
 	 * @param nodeID
 	 */
 	public void printNodeInfo(String nodeID){
