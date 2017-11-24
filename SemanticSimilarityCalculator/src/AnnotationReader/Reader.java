@@ -34,6 +34,7 @@ public class Reader {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		printEdges(annotDagCC);
 	}
 	
 	private String next() throws IOException {
@@ -62,6 +63,17 @@ public class Reader {
 					DirectedAcyclicGraph<Term, DefaultEdge> thisDag = this.dags.dagDecider(goID); 
 					if (thisDag!=null){
 						Term thisTerm = allTerms.get(goID);
+						
+						if (thisTerm.getNamespace().equals("biological_process")){
+							temporaryDag = this.annotDagBP;
+						} 
+						else if (thisTerm.getNamespace().equals("cellular_component")){
+							temporaryDag = this.annotDagCC;
+						} 
+						else if (thisTerm.getNamespace().equals("molecular_function")){
+							temporaryDag = this.annotDagMF;
+						}
+						
 						temporaryDag.addVertex(thisTerm);
 						Iterator<DefaultEdge> edgeIterator = thisDag.incomingEdgesOf(thisTerm).iterator();
 						while (edgeIterator.hasNext()){
@@ -69,16 +81,31 @@ public class Reader {
 							Term ancestor = thisDag.getEdgeSource(currentEdge);//this has to be added to new dag
 							temporaryDag.addVertex(ancestor);
 							temporaryDag.addDagEdge(ancestor, thisTerm);
-							System.out.println("Edge added with ancesor: "+ancestor.getID()+" and child "+thisTerm.getID());
+							//System.out.println("Edge added with ancesor: "+ancestor.getID()+" and child "+thisTerm.getID());
 						}
-						
-						//get Vertex and put it into new Dag
-						//get ancestor and put it into new Dag....can it be multiple?
-						//connect with Edges
+						if (thisTerm.getNamespace().equals("biological_process")){
+							this.annotDagBP = temporaryDag;
+						} 
+						else if (thisTerm.getNamespace().equals("cellular_component")){
+							this.annotDagCC = temporaryDag;
+						} 
+						else if (thisTerm.getNamespace().equals("molecular_function")){
+							this.annotDagMF = temporaryDag;
+						}
 					}
 				}
 			}
 		}
 		//System.out.println(temporaryDag.toString());
+	}
+	
+	/**
+	 * Prints out the edges of a DAG in (from Vertex --> to Vertex) format
+	 * @param thisDAG
+	 */
+	public void printEdges(DirectedAcyclicGraph<Term, DefaultEdge> thisDAG) {
+		for(DefaultEdge e : thisDAG.edgeSet()){
+		    System.out.println(thisDAG.getEdgeSource(e).getID() + " --> " + thisDAG.getEdgeTarget(e).getID());
+		}
 	}
 }

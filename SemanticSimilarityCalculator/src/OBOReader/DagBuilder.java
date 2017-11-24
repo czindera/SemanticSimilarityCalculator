@@ -215,20 +215,6 @@ public class DagBuilder {
 		in2.close();
 		System.out.println("Finished Building DAGs!");
 		
-		
-		//System.out.println("Printing MF DAG");
-		//printEdges(dagMF);
-		//System.out.println("Printing CC DAG");
-		//printEdges(dagCC);
-		//System.out.println("Printing BP DAG");
-		//printEdges(dagBP);
-	}
-	
-	@SuppressWarnings("unused")
-	private void printEdges(DirectedAcyclicGraph<Term, DefaultEdge> thisDAG) {
-		for(DefaultEdge e : thisDAG.edgeSet()){
-		    System.out.println(thisDAG.getEdgeSource(e).id + " --> " + thisDAG.getEdgeTarget(e).id);
-		}
 	}
 	
 	/**
