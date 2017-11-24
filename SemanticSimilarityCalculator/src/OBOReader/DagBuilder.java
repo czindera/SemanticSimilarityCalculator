@@ -183,6 +183,7 @@ public class DagBuilder {
 		in2.close();
 		System.out.println("Finished Building DAGs!");
 		
+		
 		//System.out.println("Printing MF DAG");
 		//printEdges(dagMF);
 		//System.out.println("Printing CC DAG");
