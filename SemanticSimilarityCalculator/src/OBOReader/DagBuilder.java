@@ -161,12 +161,12 @@ public class DagBuilder {
 			if(colon==-1) continue;
 			if(line.startsWith("id:"))
 				{
-				fromVertex= line.substring(colon+1).trim();
+				toVertex= line.substring(colon+1).trim();
 				continue;
 				}
 			if(line.startsWith("is_a:"))
 				{
-				toVertex = nocomment(line.substring(colon+1));
+				fromVertex = nocomment(line.substring(colon+1));
 				//System.out.println(fromVertex+" to be connected to: "+toVertex);
 				Term fromNode = terms.get(fromVertex);
 				Term toNode = terms.get(toVertex);
