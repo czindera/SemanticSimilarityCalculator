@@ -28,7 +28,7 @@ public class DagBuilder {
 			} catch (IOException | CycleFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}			
 	}
 	
 	/**
