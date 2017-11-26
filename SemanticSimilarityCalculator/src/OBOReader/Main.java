@@ -24,7 +24,7 @@ public class Main {
 		while (function){
 			System.out.println("CHOICES:");
 			System.out.println("'1' or 'chooseTerm' a term");
-			System.out.println("'2' or 'chooseDag' to chose BP/CC/MF");
+			System.out.println("'2' or 'printDag' to print BP/CC/MF Dag");
 			System.out.println("'3' or 'exit' to exit program");
 			input = sc.nextLine();
 			
@@ -36,7 +36,7 @@ public class Main {
 				String term = input;
 				
 				System.out.println("CHOICES:");
-				System.out.println("'1' or 'check' gets info about the Term and checks if it is in the relevant DAG");
+				System.out.println("'1' or 'check' gets info about the Term and checks if it is in the up propagated DAG");
 				System.out.println("'2' or 'getAncestors' to list ancestors of a Term");
 				System.out.println("'3' or 'getAllAncestors' to list ancestors of a Term");
 				input = sc.nextLine();
@@ -57,7 +57,17 @@ public class Main {
 				}
 				break;
 			}
-			case "2": case "chooseDag":{
+			case "2": case "printDag":{
+				System.out.println("CHOICES:");
+				System.out.println("'1' or 'BP' to chose Biological Process DAG");
+				System.out.println("'2' or 'MF' to chose Molecular Function DAG");
+				System.out.println("'3' or 'CC' to chose Cellular Component DAG");
+				input=sc.nextLine();
+				if(input.equals("1") || input.equals("2") || input.equals("3") || input.equals("BP") || input.equals("MF") || input.equals("CC")){
+					notationReader.printEdges(input);
+				} else {
+					System.out.println("Command not understood, please try again.");
+				}
 				break;
 			}
 			case "3": case "exit":{
@@ -70,23 +80,6 @@ public class Main {
 			}
 			}
 		}
-		
-		
-		
-		
-		
-
-		/*System.out.println("CHOICES:");
-		System.out.println("'1' or 'BP' to chose Biological Process DAG");
-		System.out.println("'2' or 'MF' to chose Molecular Function DAG");
-		System.out.println("'3' or 'CC' to chose Cellular Component DAG");
-		
-		System.out.println("CHOICES:");
-		System.out.println("'1' or 'listTerms' to list the nodes(terms) in the DAG");
-		System.out.println("'2' or 'listEdges' to list the edges(is_a connections) of the DAG");
-		
-		*/
-		//get details from Terms but check before if it exists in the relevant DAG
 		sc.close();
 	}
 

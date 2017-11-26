@@ -45,6 +45,11 @@ public class Reader {
 		System.out.println("Uppropagation finished!");
 		//printEdges(annotDagBP);
 		//listAncestors("GO:0050779");
+		//findRootOfDag(annotDagBP);
+		/*System.out.println("Distance between GO:0050779 and GO:0051252 "+distanceOfEdges("GO:0051252","GO:0050779"));
+		System.out.println("Distance between GO:0051252 and GO:0050779 "+distanceOfEdges("GO:0050779","GO:0051252"));
+		System.out.println("Distance between GO:0050779 and GO:0051254 "+distanceOfEdges("GO:0050779","GO:0051254"));
+		System.out.println("Distance between GO:0051254 and GO:0050779 "+distanceOfEdges("GO:0051254","GO:0050779"));*/
 	}
 	
 	private String next() throws IOException {
@@ -120,7 +125,7 @@ public class Reader {
 	        	}
 	        	
 	        }
-	        //double loop in the same set to find all existing edges between Terms in original
+	        //double loop in the same set to find all existing edges between Terms in original dag
 	        for(Term t1: thisSet)
 	        { 
 	            for(Term t2: thisSet)
@@ -196,13 +201,74 @@ public class Reader {
 	
 	
 	/**
+	 * Calls printDagEdges with relevant DAG
+	 * @param choosenDag
+	 */
+	public void printEdges(String choosenDag){
+		switch (choosenDag){
+		case "BP": case "1":{
+			printDagEdges(this.annotDagBP);
+			break;
+		}
+		case "MF": case "2":{
+			printDagEdges(this.annotDagMF);
+			break;
+		}
+		case "CC": case "3":{
+			printDagEdges(this.annotDagCC);
+			break;
+		}
+		}
+	}
+	
+	/**
 	 * Prints out the edges of a DAG in (sourceVertex --> targetVertex) format
 	 * @param thisDAG
 	 */
-	@SuppressWarnings("unused")
-	private void printEdges(DirectedAcyclicGraph<Term, DefaultEdge> thisDAG) {
+	
+	private void printDagEdges(DirectedAcyclicGraph<Term, DefaultEdge> thisDAG) {
 		for(DefaultEdge e : thisDAG.edgeSet()){
 		    System.out.println(thisDAG.getEdgeSource(e).getID() + " --> " + thisDAG.getEdgeTarget(e).getID());
 		}
 	}
+	
+	
+	/**
+	 * This method finds the root of the DAG.
+	 * @param thisDAG
+	 */
+	private Term findRootOfDag(DirectedAcyclicGraph<Term, DefaultEdge> thisDAG){
+		Term result = null;
+		for(Term t : thisDAG.vertexSet()){
+			if(thisDAG.incomingEdgesOf(t).size()==0){
+				System.out.println("This term is the root: "+t.getID());
+				result = t;
+			}
+		}
+		return result;
+	}
+	
+	private int distanceOfEdges(String term1, String term2){
+		int result=-1;
+		Term thisTerm1 = dags.getTerms().get(term1);
+		Term thisTerm2 = dags.getTerms().get(term2);
+		DirectedAcyclicGraph<Term, DefaultEdge> temporaryDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
+		if (thisTerm1!=null && thisTerm2!=null){
+			if (thisTerm1.getNamespace().equals("biological_process")){
+				temporaryDag = this.annotDagBP;
+			} 
+			else if (thisTerm1.getNamespace().equals("cellular_component")){
+				temporaryDag = this.annotDagCC;
+			} 
+			else if (thisTerm1.getNamespace().equals("molecular_function")){
+				temporaryDag = this.annotDagMF;
+			} 
+			if(term1.equals(term2)) {result = 0;}
+			else {
+				//result = 
+			}
+		}
+		return result;
+	}
+	
 }
