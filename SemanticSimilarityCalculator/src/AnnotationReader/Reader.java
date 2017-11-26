@@ -46,6 +46,7 @@ public class Reader {
 		//printEdges(annotDagBP);
 		//listAncestors("GO:0050779");
 		//findRootOfDag(annotDagBP);
+		System.out.println(findCommonAncestor("GO:0051252","GO:0045935").getID());
 		/*System.out.println("Distance between GO:0050779 and GO:0051252 "+distanceOfEdges("GO:0051252","GO:0050779"));
 		System.out.println("Distance between GO:0051252 and GO:0050779 "+distanceOfEdges("GO:0050779","GO:0051252"));
 		System.out.println("Distance between GO:0050779 and GO:0051254 "+distanceOfEdges("GO:0050779","GO:0051254"));
@@ -237,6 +238,7 @@ public class Reader {
 	 * This method finds the root of the DAG.
 	 * @param thisDAG
 	 */
+	@SuppressWarnings("unused")
 	private Term findRootOfDag(DirectedAcyclicGraph<Term, DefaultEdge> thisDAG){
 		Term result = null;
 		for(Term t : thisDAG.vertexSet()){
@@ -248,6 +250,56 @@ public class Reader {
 		return result;
 	}
 	
+	private Term findCommonAncestor(String termA, String termB){
+		Term thisTerm1 = dags.getTerms().get(termA);
+		Term thisTerm2 = dags.getTerms().get(termB);
+		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
+			if (thisTerm1.getNamespace().equals("biological_process")){
+				thisDag = this.annotDagBP;
+			} 
+			else if (thisTerm1.getNamespace().equals("cellular_component")){
+				thisDag = this.annotDagCC;
+			} 
+			else if (thisTerm1.getNamespace().equals("molecular_function")){
+				thisDag = this.annotDagMF;
+			} 
+		Set<Term> ancestorSetA = thisDag.getAncestors(thisDag, thisTerm1);
+		Set<Term> ancestorSetB = thisDag.getAncestors(thisDag, thisTerm2);
+		//if one term's ancestorSet contains the other term
+		if (ancestorSetA.size() < ancestorSetB.size()){   // term1 is closer to root
+			if(ancestorSetB.contains(thisTerm1)){
+				return thisTerm1;
+			}
+		} else if(ancestorSetA.contains(thisTerm2)){ //term2 is closer to root
+				return thisTerm2;
+		} 
+			Set<Term> mutualTermSet = new HashSet<Term>(ancestorSetB);	    
+			mutualTermSet.retainAll(ancestorSetA);
+			Term result = null;
+			for (Term t : mutualTermSet){ 
+				Iterator<DefaultEdge> edgeIterator = thisDag.outgoingEdgesOf(t).iterator();
+				boolean allEdgesPointOut = false;
+				while (edgeIterator.hasNext()){
+					DefaultEdge thisEdge = edgeIterator.next();
+					if (mutualTermSet.contains(thisDag.getEdgeTarget(thisEdge))){
+						allEdgesPointOut = true;
+					}
+				}
+				if(!allEdgesPointOut){
+					result = t;
+				}
+			}
+			return result;
+		
+		/*
+		 * Computation of lowest common ancestors may be useful, for instance, as part of a procedure 
+		 * for determining the distance between pairs of nodes in a tree: the distance from v to w can 
+		 * be computed as the distance from the root to v, plus the distance from the root to w, minus 
+		 * twice the distance from the root to their lowest common ancestor
+		 * */	
+	}
+	
+	@SuppressWarnings("unused")
 	private int distanceOfEdges(String term1, String term2){
 		int result=-1;
 		Term thisTerm1 = dags.getTerms().get(term1);
