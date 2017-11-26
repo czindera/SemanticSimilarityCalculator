@@ -23,7 +23,6 @@ public class Reader {
 	private BufferedReader in;
 	private String buffer;
 	private DirectedAcyclicGraph<Term, DefaultEdge> annotDagBP,annotDagMF,annotDagCC;
-	//private Set<Term> termSet;
 	private Map<Term,Set<Term>> termMap;
 	private DagBuilder dags;
 	
@@ -45,7 +44,7 @@ public class Reader {
 		
 		System.out.println("Uppropagation finished!");
 		//printEdges(annotDagBP);
-		listAncestors("GO:0050779");
+		//listAncestors("GO:0050779");
 	}
 	
 	private String next() throws IOException {
@@ -186,7 +185,7 @@ public class Reader {
 				temporaryDag = this.annotDagMF;
 			} 
 			
-			System.out.print("The ancestor/s of the term: [ ");
+			System.out.print("The ancestor/s of "+term+" term: [ ");
 			getAncestors(temporaryDag,thisTerm).stream().forEach(theTerm -> System.out.print(theTerm.getID()+" "));
 			System.out.print("]");
 		} else { 
