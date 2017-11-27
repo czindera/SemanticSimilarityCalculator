@@ -254,15 +254,17 @@ public class Reader {
 		Term thisTerm1 = dags.getTerms().get(termA);
 		Term thisTerm2 = dags.getTerms().get(termB);
 		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
-			if (thisTerm1.getNamespace().equals("biological_process")){
+		if (thisTerm1!=null && thisTerm2!=null){
+			if (thisTerm1.getNamespace().equals("biological_process") && thisTerm2.getNamespace().equals("biological_process")){
 				thisDag = this.annotDagBP;
 			} 
-			else if (thisTerm1.getNamespace().equals("cellular_component")){
+			else if (thisTerm1.getNamespace().equals("cellular_component") && thisTerm2.getNamespace().equals("cellular_component")){
 				thisDag = this.annotDagCC;
 			} 
-			else if (thisTerm1.getNamespace().equals("molecular_function")){
+			else if (thisTerm1.getNamespace().equals("molecular_function") && thisTerm2.getNamespace().equals("molecular_function")){
 				thisDag = this.annotDagMF;
-			} 
+			} 	
+			}
 		Set<Term> ancestorSetA = thisDag.getAncestors(thisDag, thisTerm1);
 		Set<Term> ancestorSetB = thisDag.getAncestors(thisDag, thisTerm2);
 		//if one term's ancestorSet contains the other term
@@ -299,26 +301,40 @@ public class Reader {
 		 * */	
 	}
 	
+	private int distanceOnSameWalk(Term term1, Term term2){
+		
+		
+		return 0;
+	}
+	
+	
 	@SuppressWarnings("unused")
-	private int distanceOfEdges(String term1, String term2){
+	public int WuPalmerSim(String term1, String term2){
 		int result=-1;
 		Term thisTerm1 = dags.getTerms().get(term1);
 		Term thisTerm2 = dags.getTerms().get(term2);
-		DirectedAcyclicGraph<Term, DefaultEdge> temporaryDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
+		Term commonAncestor = findCommonAncestor(term1,term2); 
+		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		if (thisTerm1!=null && thisTerm2!=null){
-			if (thisTerm1.getNamespace().equals("biological_process")){
-				temporaryDag = this.annotDagBP;
+			if (thisTerm1.getNamespace().equals("biological_process") && thisTerm2.getNamespace().equals("biological_process")){
+				thisDag = this.annotDagBP;
 			} 
-			else if (thisTerm1.getNamespace().equals("cellular_component")){
-				temporaryDag = this.annotDagCC;
+			else if (thisTerm1.getNamespace().equals("cellular_component") && thisTerm2.getNamespace().equals("cellular_component")){
+				thisDag = this.annotDagCC;
 			} 
-			else if (thisTerm1.getNamespace().equals("molecular_function")){
-				temporaryDag = this.annotDagMF;
-			} 
-			if(term1.equals(term2)) {result = 0;}
-			else {
-				//result = 
+			else if (thisTerm1.getNamespace().equals("molecular_function") && thisTerm2.getNamespace().equals("molecular_function")){
+				thisDag = this.annotDagMF;
 			}
+			Term rootTerm = findRootOfDag(thisDag);
+			if (term1.equals(term2)){
+				System.out.println("Same terms.");
+				result = 1;
+			} else {
+				int n3 = distanceOnSameWalk(commonAncestor,rootTerm);
+				int n1 = distanceOnSameWalk(thisTerm1,commonAncestor);
+				int n2 = distanceOnSameWalk(thisTerm2,commonAncestor);
+				result = (2*n3)/(n1+n2+2*n3);
+			}			
 		}
 		return result;
 	}
