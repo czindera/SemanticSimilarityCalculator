@@ -12,6 +12,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.jgraph.graph.DefaultEdge;
+import org.jgrapht.GraphPath;
+import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph.CycleFoundException;
 
@@ -46,11 +48,8 @@ public class Reader {
 		//printEdges(annotDagBP);
 		//listAncestors("GO:0050779");
 		//findRootOfDag(annotDagBP);
-		System.out.println(findCommonAncestor("GO:0051252","GO:0045935").getID());
-		/*System.out.println("Distance between GO:0050779 and GO:0051252 "+distanceOfEdges("GO:0051252","GO:0050779"));
-		System.out.println("Distance between GO:0051252 and GO:0050779 "+distanceOfEdges("GO:0050779","GO:0051252"));
-		System.out.println("Distance between GO:0050779 and GO:0051254 "+distanceOfEdges("GO:0050779","GO:0051254"));
-		System.out.println("Distance between GO:0051254 and GO:0050779 "+distanceOfEdges("GO:0051254","GO:0050779"));*/
+		//System.out.println(findCommonAncestor("GO:0051252","GO:0045935").getID());
+		System.out.println("Similarity for GO:0050779 and GO:0019219 :  "+WuPalmerSim("GO:0050779", "GO:0019219"));
 	}
 	
 	private String next() throws IOException {
@@ -238,12 +237,12 @@ public class Reader {
 	 * This method finds the root of the DAG.
 	 * @param thisDAG
 	 */
-	@SuppressWarnings("unused")
+
 	private Term findRootOfDag(DirectedAcyclicGraph<Term, DefaultEdge> thisDAG){
 		Term result = null;
 		for(Term t : thisDAG.vertexSet()){
 			if(thisDAG.incomingEdgesOf(t).size()==0){
-				System.out.println("This term is the root: "+t.getID());
+				//System.out.println("This term is the root: "+t.getID());
 				result = t;
 			}
 		}
@@ -301,16 +300,44 @@ public class Reader {
 		 * */	
 	}
 	
-	private int distanceOnSameWalk(Term term1, Term term2){
-		
-		
-		return 0;
+	
+	
+	private int distanceOnSameWalk(Term thisTerm1, Term thisTerm2){
+		int shortestDistance = 100000000;  //initial big distance
+		//Term thisTerm1 = dags.getTerms().get(term1);
+		//Term thisTerm2 = dags.getTerms().get(term2);
+		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
+			if (thisTerm1.getNamespace().equals("biological_process") && thisTerm2.getNamespace().equals("biological_process")){
+				thisDag = this.annotDagBP;
+			} 
+			else if (thisTerm1.getNamespace().equals("cellular_component") && thisTerm2.getNamespace().equals("cellular_component")){
+				thisDag = this.annotDagCC;
+			} 
+			else if (thisTerm1.getNamespace().equals("molecular_function") && thisTerm2.getNamespace().equals("molecular_function")){
+				thisDag = this.annotDagMF;
+			}
+		Set<Term> ancestorsTerm1 = thisDag.getAncestors(thisDag, thisTerm1);
+		Set<Term> ancestorsTerm2 = thisDag.getAncestors(thisDag, thisTerm2);
+		Term tempTerm = null;
+		Term targetTerm = null;
+		if (ancestorsTerm1.size() < ancestorsTerm2.size()){
+			tempTerm = thisTerm2;
+			targetTerm = thisTerm1;
+		} else {
+			tempTerm = thisTerm1;
+			targetTerm = thisTerm2;
+		}
+		GraphPath<Term, DefaultEdge> path = new DijkstraShortestPath<Term, DefaultEdge>(thisDag).getPath( targetTerm, tempTerm);
+		shortestDistance = path.getEdgeList().size();
+		/*for(DefaultEdge e : path.getEdgeList()){
+			System.out.println(thisDag.getEdgeSource(e).getID()+" --> "+thisDag.getEdgeTarget(e).getID());
+		}*/
+		return shortestDistance;
 	}
 	
 	
-	@SuppressWarnings("unused")
-	public int WuPalmerSim(String term1, String term2){
-		int result=-1;
+	public double WuPalmerSim(String term1, String term2){
+		double result=-1;
 		Term thisTerm1 = dags.getTerms().get(term1);
 		Term thisTerm2 = dags.getTerms().get(term2);
 		Term commonAncestor = findCommonAncestor(term1,term2); 
@@ -330,9 +357,9 @@ public class Reader {
 				System.out.println("Same terms.");
 				result = 1;
 			} else {
-				int n3 = distanceOnSameWalk(commonAncestor,rootTerm);
-				int n1 = distanceOnSameWalk(thisTerm1,commonAncestor);
-				int n2 = distanceOnSameWalk(thisTerm2,commonAncestor);
+				double n3 = (double)distanceOnSameWalk(commonAncestor,rootTerm);
+				double n1 = (double)distanceOnSameWalk(thisTerm1,commonAncestor);
+				double n2 = (double)distanceOnSameWalk(thisTerm2,commonAncestor);
 				result = (2*n3)/(n1+n2+2*n3);
 			}			
 		}
