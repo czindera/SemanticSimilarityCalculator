@@ -49,7 +49,7 @@ public class Reader {
 		//listAncestors("GO:0050779");
 		//findRootOfDag(annotDagBP);
 		//System.out.println(findCommonAncestor("GO:0051252","GO:0045935").getID());
-		//System.out.println("Similarity for GO:0050779 and GO:0019219 :  "+WuPalmerSim("GO:0050779", "GO:0019219"));
+		System.out.println("Similarity for GO:0050779 and GO:0019219 :  "+WuPalmerSim("GO:0050779", "GO:0019219"));
 	}
 	
 	/**
@@ -105,21 +105,12 @@ public class Reader {
 	private void dagBuilder() throws CycleFoundException{
 		DirectedAcyclicGraph<Term, DefaultEdge> temporaryDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		Iterator<Entry<Term, Set<Term>>> mapIterator = this.termMap.entrySet().iterator();
-		
 		while(mapIterator.hasNext()){
 			Entry<Term, Set<Term>> entry = mapIterator.next();
 	        Term thisTerm = entry.getKey();
 	        Set<Term> thisSet = entry.getValue();
 	        DirectedAcyclicGraph<Term, DefaultEdge> relevantOBODag = this.dags.dagDecider(thisTerm.getID());
-	        if (thisTerm.getNamespace().equals("biological_process")){
-    			temporaryDag = this.annotDagBP;
-    		} 
-    		else if (thisTerm.getNamespace().equals("cellular_component")){
-    			temporaryDag = this.annotDagCC;
-    		} 
-    		else if (thisTerm.getNamespace().equals("molecular_function")){
-    			temporaryDag = this.annotDagMF;
-    		}
+	        temporaryDag = dagSelector(thisTerm);
 	        temporaryDag.addVertex(thisTerm);
 	        Iterator<Term> setIterator = thisSet.iterator();
 	        while(setIterator.hasNext()){
@@ -128,8 +119,7 @@ public class Reader {
 	        	if(relevantOBODag.containsEdge(thisAncestor, thisTerm)){
 	        		//System.out.println("Edge has been found in original DAG.");
 	        		temporaryDag.addDagEdge(thisAncestor, thisTerm);
-	        	}
-	        	
+	        	}	
 	        }
 	        //double loop in the same set to find all existing edges between Terms in original dag
 	        for(Term t1: thisSet)
@@ -186,16 +176,7 @@ public class Reader {
 		Term thisTerm = dags.getTerms().get(term);
 		DirectedAcyclicGraph<Term, DefaultEdge> temporaryDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		if (thisTerm!=null){
-			if (thisTerm.getNamespace().equals("biological_process")){
-				temporaryDag = this.annotDagBP;
-			} 
-			else if (thisTerm.getNamespace().equals("cellular_component")){
-				temporaryDag = this.annotDagCC;
-			} 
-			else if (thisTerm.getNamespace().equals("molecular_function")){
-				temporaryDag = this.annotDagMF;
-			} 
-			
+			temporaryDag = dagSelector(thisTerm);			
 			System.out.print("The ancestor/s of "+term+" term: [ ");
 			getAncestors(temporaryDag,thisTerm).stream().forEach(theTerm -> System.out.print(theTerm.getID()+" "));
 			System.out.print("]");
@@ -270,20 +251,10 @@ public class Reader {
 	 * @param termB
 	 * @return LCA term
 	 */
-	private Term findCommonAncestor(String termA, String termB){
-		Term thisTerm1 = dags.getTerms().get(termA);
-		Term thisTerm2 = dags.getTerms().get(termB);
+	private Term findCommonAncestor(Term thisTerm1, Term thisTerm2){
 		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		if (thisTerm1!=null && thisTerm2!=null){
-			if (thisTerm1.getNamespace().equals("biological_process") && thisTerm2.getNamespace().equals("biological_process")){
-				thisDag = this.annotDagBP;
-			} 
-			else if (thisTerm1.getNamespace().equals("cellular_component") && thisTerm2.getNamespace().equals("cellular_component")){
-				thisDag = this.annotDagCC;
-			} 
-			else if (thisTerm1.getNamespace().equals("molecular_function") && thisTerm2.getNamespace().equals("molecular_function")){
-				thisDag = this.annotDagMF;
-			} 	
+			thisDag = dagSelector(thisTerm1);
 			}
 		Set<Term> ancestorSetA = thisDag.getAncestors(thisDag, thisTerm1);
 		Set<Term> ancestorSetB = thisDag.getAncestors(thisDag, thisTerm2);
@@ -321,6 +292,24 @@ public class Reader {
 		 * */	
 	}
 	
+	/**
+	 * This method selects the dag that the Term is belonging to.
+	 * @param thisTerm
+	 * @return
+	 */
+	private DirectedAcyclicGraph<Term, DefaultEdge> dagSelector (Term thisTerm){
+		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
+		if (thisTerm.getNamespace().equals("biological_process")){
+			thisDag = this.annotDagBP;
+		} 
+		else if (thisTerm.getNamespace().equals("cellular_component")){
+			thisDag = this.annotDagCC;
+		} 
+		else if (thisTerm.getNamespace().equals("molecular_function")){
+			thisDag = this.annotDagMF;
+		}
+		return thisDag;
+	}
 	
 	/**
 	 * Calculates the distance between two nodes (the ancestor list of one node contains the other).
@@ -331,18 +320,8 @@ public class Reader {
 	 */
 	private int distanceOnSameWalk(Term thisTerm1, Term thisTerm2){
 		int shortestDistance = 100000000;  //initial big distance
-		//Term thisTerm1 = dags.getTerms().get(term1);
-		//Term thisTerm2 = dags.getTerms().get(term2);
 		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
-			if (thisTerm1.getNamespace().equals("biological_process") && thisTerm2.getNamespace().equals("biological_process")){
-				thisDag = this.annotDagBP;
-			} 
-			else if (thisTerm1.getNamespace().equals("cellular_component") && thisTerm2.getNamespace().equals("cellular_component")){
-				thisDag = this.annotDagCC;
-			} 
-			else if (thisTerm1.getNamespace().equals("molecular_function") && thisTerm2.getNamespace().equals("molecular_function")){
-				thisDag = this.annotDagMF;
-			}
+		thisDag = dagSelector(thisTerm1);
 		Set<Term> ancestorsTerm1 = thisDag.getAncestors(thisDag, thisTerm1);
 		Set<Term> ancestorsTerm2 = thisDag.getAncestors(thisDag, thisTerm2);
 		Term tempTerm = null;
@@ -372,18 +351,10 @@ public class Reader {
 		double result=-1;
 		Term thisTerm1 = dags.getTerms().get(term1);
 		Term thisTerm2 = dags.getTerms().get(term2);
-		Term commonAncestor = findCommonAncestor(term1,term2); 
+		Term commonAncestor = findCommonAncestor(thisTerm1,thisTerm2); 
 		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		if (thisTerm1!=null && thisTerm2!=null){
-			if (thisTerm1.getNamespace().equals("biological_process") && thisTerm2.getNamespace().equals("biological_process")){
-				thisDag = this.annotDagBP;
-			} 
-			else if (thisTerm1.getNamespace().equals("cellular_component") && thisTerm2.getNamespace().equals("cellular_component")){
-				thisDag = this.annotDagCC;
-			} 
-			else if (thisTerm1.getNamespace().equals("molecular_function") && thisTerm2.getNamespace().equals("molecular_function")){
-				thisDag = this.annotDagMF;
-			}
+			thisDag = dagSelector(thisTerm1);
 			Term rootTerm = findRootOfDag(thisDag);
 			if (term1.equals(term2)){
 				System.out.println("Same terms.");
