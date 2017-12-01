@@ -36,18 +36,26 @@ public class Main {
 				String term = input;
 				
 				System.out.println("CHOICES:");
-				System.out.println("'1' or 'check' gets info about the Term and checks if it is in the up propagated DAG");
+				System.out.println("'1' or 'info' gets info about the Term");
 				System.out.println("'2' or 'getAncestors' to list ancestors of a Term");
-				System.out.println("'3' or 'getAllAncestors' to list ancestors of a Term");
+				System.out.println("'3' or 'calcSim' to calculate similarity with another term using Wu and Palmer method");
 				input = sc.nextLine();
 				
 				switch (input){
-				case "1": case "check":{
-					
+				case "1": case "info":{
+					notationReader.printTermInfo(term);
 					break;
 				}
 				case "2": case "getAncestors":{
 					notationReader.listAncestors(term);
+					break;
+				}
+				case "3": case "calcSim":{
+					System.out.println("Enter second Term ID! 'GO:xxxxxxx'");
+					input=sc.nextLine();
+					String term2 = input;
+					double result = notationReader.WuPalmerSim(term, term2);
+					if (result!=-1) System.out.println("There is a similarity with "+result);
 					break;
 				}
 				default: {

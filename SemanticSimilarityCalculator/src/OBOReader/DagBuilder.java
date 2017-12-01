@@ -207,6 +207,7 @@ public class DagBuilder {
 			if(line.equals("[Term]")) parseTerm();
 		}
 		in.close();
+		fr.close();
 		
 		//terms.printTerms();
 		buffer=null;
@@ -214,6 +215,7 @@ public class DagBuilder {
 			if(line.equals("[Term]")) createEdges();
 		}
 		in2.close();
+		fr2.close();
 		System.out.println("Finished Building DAGs!");
 		
 	}
@@ -267,6 +269,9 @@ public class DagBuilder {
 				Term nextTerm = myChildIterator.next();
 				System.out.println(nextTerm.toString());
 			}
+		} else { 
+			System.out.println("No such term exists!");
+			return;
 		}
 	}
 	

@@ -52,6 +52,11 @@ public class Reader {
 		System.out.println("Similarity for GO:0050779 and GO:0019219 :  "+WuPalmerSim("GO:0050779", "GO:0019219"));
 	}
 	
+	/**
+	 * To get the next line of the source file
+	 * @return
+	 * @throws IOException
+	 */
 	private String next() throws IOException {
 		if(buffer!=null) {
 			String s=buffer;
@@ -89,6 +94,7 @@ public class Reader {
 			}
 		}
 		in.close();
+		fr.close();
 		//System.out.println(temporaryDag.toString());
 	}
 	
@@ -193,6 +199,7 @@ public class Reader {
 			System.out.print("The ancestor/s of "+term+" term: [ ");
 			getAncestors(temporaryDag,thisTerm).stream().forEach(theTerm -> System.out.print(theTerm.getID()+" "));
 			System.out.print("]");
+			System.out.println("");
 		} else { 
 			System.out.println("No such term exists!");
 			return;
@@ -232,6 +239,14 @@ public class Reader {
 		}
 	}
 	
+	/**
+	 * Prints information about a node.
+	 * @param term
+	 */
+	public void printTermInfo(String term){
+		dags.printNodeInfo(term);
+	}
+	
 	
 	/**
 	 * This method finds the root of the DAG.
@@ -249,6 +264,12 @@ public class Reader {
 		return result;
 	}
 	
+	/**
+	 * This method finds the lowest common ancestor (LCA) of two nodes
+	 * @param termA
+	 * @param termB
+	 * @return LCA term
+	 */
 	private Term findCommonAncestor(String termA, String termB){
 		Term thisTerm1 = dags.getTerms().get(termA);
 		Term thisTerm2 = dags.getTerms().get(termB);
@@ -301,7 +322,13 @@ public class Reader {
 	}
 	
 	
-	
+	/**
+	 * Calculates the distance between two nodes (the ancestor list of one node contains the other).
+	 * This method could be used after LCA has been found.
+	 * @param thisTerm1
+	 * @param thisTerm2
+	 * @return
+	 */
 	private int distanceOnSameWalk(Term thisTerm1, Term thisTerm2){
 		int shortestDistance = 100000000;  //initial big distance
 		//Term thisTerm1 = dags.getTerms().get(term1);
@@ -335,7 +362,12 @@ public class Reader {
 		return shortestDistance;
 	}
 	
-	
+	/**
+	 * Similarity calculation using Wu and Palmer method
+	 * @param term1
+	 * @param term2
+	 * @return a similarity value: [0-1]
+	 */
 	public double WuPalmerSim(String term1, String term2){
 		double result=-1;
 		Term thisTerm1 = dags.getTerms().get(term1);
@@ -362,6 +394,8 @@ public class Reader {
 				double n2 = (double)distanceOnSameWalk(thisTerm2,commonAncestor);
 				result = (2*n3)/(n1+n2+2*n3);
 			}			
+		} else { 
+			System.out.println("Term ID's not given correctly.");
 		}
 		return result;
 	}
