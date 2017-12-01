@@ -49,7 +49,7 @@ public class Reader {
 		//listAncestors("GO:0050779");
 		//findRootOfDag(annotDagBP);
 		//System.out.println(findCommonAncestor("GO:0051252","GO:0045935").getID());
-		System.out.println("Similarity for GO:0050779 and GO:0019219 :  "+WuPalmerSim("GO:0050779", "GO:0019219"));
+		//System.out.println("Similarity for GO:0050779 and GO:0019219 :  "+WuPalmerSim("GO:0050779", "GO:0019219"));
 	}
 	
 	/**

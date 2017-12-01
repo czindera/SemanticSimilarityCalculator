@@ -14,7 +14,7 @@ public class Term {
 		this.def = null;
 	}
 	
-	Term(String id) {
+	public Term(String id) {
 		this.id = id;
 		this.name = null;
 		this.namespace = null;
