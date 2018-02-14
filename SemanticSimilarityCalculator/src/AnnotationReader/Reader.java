@@ -39,8 +39,13 @@ public class Reader {
 		try {
 			parse();
 			dagBuilder();
+			//call the uppropagate methods here
+			uppropagate(annotDagBP);
+			uppropagate(annotDagMF);
+			uppropagate(annotDagCC);
+			//call methods here to calculate IC for all Terms
+			
 		} catch (IOException | CycleFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -50,6 +55,8 @@ public class Reader {
 		//findRootOfDag(annotDagBP);
 		//System.out.println(findCommonAncestor("GO:0051252","GO:0045935").getID());
 		System.out.println("Similarity for GO:0050779 and GO:0019219 :  "+WuPalmerSim("GO:0050779", "GO:0019219"));
+		System.out.println("Root of BP DAG has these genes associated to it: "+findRootOfDag(annotDagBP).getGeneList());
+		System.out.println("The term GO:0050779 has these genes associated to it: "+dags.getTerms().get("GO:0050779").getGeneList());
 	}
 	
 	/**
@@ -81,12 +88,16 @@ public class Reader {
 			if(!line.startsWith("!")) {
 				String[] words = line.split("\\s+");
 				String goID = words[3];
-				//System.out.println(words[3]); //GO IDs
+				String gene = words[1];
+				//String eCode = words[5];
 				Terms allTerms = this.dags.getTerms();
 				if (goID.startsWith("GO")){
 					DirectedAcyclicGraph<Term, DefaultEdge> thisDag = this.dags.dagDecider(goID); 
 					if (thisDag!=null){
 						Term thisTerm = allTerms.get(goID);
+						if (!thisTerm.addGene(gene)) {
+							System.out.println("Gene already exists in the Set.");
+						}
 						this.termMap.put(thisTerm, thisDag.getAncestors(thisDag, thisTerm));
 						
 					}
@@ -148,6 +159,20 @@ public class Reader {
 			}
 		}
 		
+	}
+	
+	/**
+	 * This method sets the genes for all Terms in the DAG => uppropagation
+	 * @param dag
+	 */
+	private void uppropagate(DirectedAcyclicGraph<Term, DefaultEdge> dag){
+		for(Term t : dag.vertexSet()){
+			for(Term ancestor : dag.getAncestors(dag, t)){
+				if (!ancestor.addGenes(t.getGeneList())){
+					System.out.println("Gene Set was not modified for term "+ancestor.getID());
+				}
+			}
+		}
 	}
 	
 	
