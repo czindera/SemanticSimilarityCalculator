@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.GraphPath;
@@ -37,14 +39,17 @@ public class Reader {
 		this.termMap = new HashMap<Term,Set<Term>>();
 		this.dags = new DagBuilder();
 		try {
-			parse();
+			HashSet<String> initSet = Stream.of("EXP", "IDA","IPI","IMP","IGI","IEP","TAS").collect(Collectors.toCollection(HashSet::new));
+			parse(initSet);
 			dagBuilder();
 			//call the uppropagate methods here
 			uppropagate(annotDagBP);
 			uppropagate(annotDagMF);
 			uppropagate(annotDagCC);
 			//call methods here to calculate IC for all Terms
-			
+			calculateIC(annotDagBP);
+			calculateIC(annotDagMF);
+			calculateIC(annotDagCC);
 		} catch (IOException | CycleFoundException e) {
 			e.printStackTrace();
 		}
@@ -75,10 +80,11 @@ public class Reader {
 	
 	/**
 	 * This method reads the file and creates a MAP from Terms and all their ancestors.
+	 * It also filters genes according to given evidence codes.
 	 * @throws IOException
 	 * @throws CycleFoundException
 	 */
-	private void parse() throws IOException, CycleFoundException {
+	private void parse(HashSet<String> filters) throws IOException, CycleFoundException {
 		ClassLoader cl = getClass().getClassLoader();
 		File annFile = new File(cl.getResource("./AnnotationFiles/gene_association.ecocyc").getFile());
 	    FileReader fr = new FileReader(annFile);
@@ -89,17 +95,18 @@ public class Reader {
 				String[] words = line.split("\\s+");
 				String goID = words[3];
 				String gene = words[1];
-				//String eCode = words[5];
+				String eCode = words[5];
 				Terms allTerms = this.dags.getTerms();
 				if (goID.startsWith("GO")){
 					DirectedAcyclicGraph<Term, DefaultEdge> thisDag = this.dags.dagDecider(goID); 
 					if (thisDag!=null){
 						Term thisTerm = allTerms.get(goID);
-						if (!thisTerm.addGene(gene)) {
-							System.out.println("Gene already exists in the Set.");
+						if (filters.contains(eCode)){
+							if (!thisTerm.addGene(gene)) {
+								System.out.println("Gene already exists in the Set.");
+							}
+							this.termMap.put(thisTerm, thisDag.getAncestors(thisDag, thisTerm));
 						}
-						this.termMap.put(thisTerm, thisDag.getAncestors(thisDag, thisTerm));
-						
 					}
 				}
 			}
@@ -172,6 +179,19 @@ public class Reader {
 					System.out.println("Gene Set was not modified for term "+ancestor.getID());
 				}
 			}
+		}
+	}
+	
+	/**
+	 * This method should be called in the constructor after uppropagation to calculate 
+	 * the information content for each term.
+	 * @param thisDag
+	 */
+	private void calculateIC(DirectedAcyclicGraph<Term, DefaultEdge> thisDag){
+		double y = findRootOfDag(thisDag).getGeneList().size();
+		for (Term thisTerm : thisDag.vertexSet()) {		
+			double x = thisTerm.getGeneList().size();
+			thisTerm.setIC(-Math.log(x/y));
 		}
 	}
 	

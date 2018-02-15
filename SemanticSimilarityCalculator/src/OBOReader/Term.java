@@ -9,6 +9,7 @@ public class Term {
 	String def;
 	HashSet<String> genes;
 	double IC;
+	String eCode;
 	
 	Term() {
 		this.id = null;
@@ -17,6 +18,7 @@ public class Term {
 		this.def = null;
 		this.genes = new HashSet<String>();
 		this.IC = 0;
+		this.eCode = null;
 	}
 	
 	public Term(String id) {
@@ -26,6 +28,7 @@ public class Term {
 		this.def = null;
 		this.genes = new HashSet<String>();
 		this.IC = 0;
+		this.eCode = null;
 	}
 	
 	public boolean addGene(String newGene){
@@ -46,6 +49,14 @@ public class Term {
 	
 	public double getIC(){
 		return this.IC;
+	}
+	
+	public void setIC(double value){
+		this.IC = value;
+	}
+	
+	public String geteCode(){
+		return this.eCode;
 	}
 	
 	public HashSet<String> getGeneList(){
