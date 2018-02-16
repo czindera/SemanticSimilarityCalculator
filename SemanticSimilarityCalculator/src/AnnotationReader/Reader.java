@@ -62,6 +62,7 @@ public class Reader {
 		System.out.println("WuPalmer Similarity for GO:0050779 and GO:0019219 :  "+WuPalmerSim("GO:0050779", "GO:0019219"));
 		System.out.println("Resnik Similarity for GO:0050779 and GO:0019219 :  "+ResnikSim("GO:0050779", "GO:0019219"));
 		System.out.println("DekangLin Similarity for GO:0050779 and GO:0019219 :  "+DekangLinSim("GO:0050779", "GO:0019219"));
+		System.out.println("JiangConrathSim Similarity for GO:0050779 and GO:0019219 :  "+JiangConrathSim("GO:0050779", "GO:0019219"));
 		System.out.println("Root of BP DAG has these genes associated to it: "+findRootOfDag(annotDagBP).getGeneList());
 		System.out.println("The term GO:0050779 has these genes associated to it: "+dags.getTerms().get("GO:0050779").getGeneList());
 	}
@@ -413,10 +414,10 @@ public class Reader {
 	public double WuPalmerSim(String term1, String term2){
 		double result=-1;
 		Term thisTerm1 = dags.getTerms().get(term1);
-		Term thisTerm2 = dags.getTerms().get(term2);
-		Term commonAncestor = findCommonAncestor(thisTerm1,thisTerm2); 
+		Term thisTerm2 = dags.getTerms().get(term2); 
 		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		if (thisTerm1!=null && thisTerm2!=null){
+			Term commonAncestor = findCommonAncestor(thisTerm1,thisTerm2);
 			thisDag = dagSelector(thisTerm1);
 			Term rootTerm = findRootOfDag(thisDag);
 			if (term1.equals(term2)){
@@ -441,9 +442,9 @@ public class Reader {
 	public double ResnikSim(String term1, String term2){
 		double result = 0;
 		Term thisTerm1 = dags.getTerms().get(term1);
-		Term thisTerm2 = dags.getTerms().get(term2);
-		Term commonAncestor = findCommonAncestor(thisTerm1,thisTerm2); 
+		Term thisTerm2 = dags.getTerms().get(term2); 
 		if (thisTerm1!=null && thisTerm2!=null){
+			Term commonAncestor = findCommonAncestor(thisTerm1,thisTerm2);
 			if (term1.equals(term2)){
 				System.out.println("Same terms.");
 			} else {
@@ -482,4 +483,24 @@ public class Reader {
 		return result;
 	}
 	
+	/**
+	 * JiangConrath Similarity measure without using weights, only considering Link Strength
+	 * @return
+	 */
+	public double JiangConrathSim(String term1, String term2){
+		double result =0;
+		Term thisTerm1 = dags.getTerms().get(term1);
+		Term thisTerm2 = dags.getTerms().get(term2); 
+		if (thisTerm1!=null && thisTerm2!=null){
+			Term commonAncestor = findCommonAncestor(thisTerm1,thisTerm2);
+			if (term1.equals(term2)){
+				System.out.println("Same terms.");
+			} else {
+				result = thisTerm1.getIC() + thisTerm2.getIC()-2*commonAncestor.getIC();				
+			}			
+		} else { 
+			System.out.println("Term ID's not given correctly or not present/not in the same tree.");
+		}
+		return result;
+	}
 }
