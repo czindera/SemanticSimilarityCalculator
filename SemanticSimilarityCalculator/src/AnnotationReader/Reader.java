@@ -59,7 +59,9 @@ public class Reader {
 		//listAncestors("GO:0050779");
 		//findRootOfDag(annotDagBP);
 		//System.out.println(findCommonAncestor("GO:0051252","GO:0045935").getID());
-		System.out.println("Similarity for GO:0050779 and GO:0019219 :  "+WuPalmerSim("GO:0050779", "GO:0019219"));
+		System.out.println("WuPalmer Similarity for GO:0050779 and GO:0019219 :  "+WuPalmerSim("GO:0050779", "GO:0019219"));
+		System.out.println("Resnik Similarity for GO:0050779 and GO:0019219 :  "+ResnikSim("GO:0050779", "GO:0019219"));
+		System.out.println("DekangLin Similarity for GO:0050779 and GO:0019219 :  "+DekangLinSim("GO:0050779", "GO:0019219"));
 		System.out.println("Root of BP DAG has these genes associated to it: "+findRootOfDag(annotDagBP).getGeneList());
 		System.out.println("The term GO:0050779 has these genes associated to it: "+dags.getTerms().get("GO:0050779").getGeneList());
 	}
@@ -195,6 +197,18 @@ public class Reader {
 		}
 	}
 	
+	/**
+	 * this method helps to calculate IC for a node (Log not applyed here yet)
+	 * @param thisDag
+	 * @param thisTerm
+	 * @return
+	 */
+	private double calculateRawIC(DirectedAcyclicGraph<Term, DefaultEdge> thisDag, Term thisTerm){
+		double y = findRootOfDag(thisDag).getGeneList().size();
+		double x = thisTerm.getGeneList().size();
+		return x/y;
+	}
+	
 	
 	/**
 	 * To get the nearest ancestors of a term.
@@ -312,18 +326,22 @@ public class Reader {
 				return thisTerm2;
 		} 
 			Set<Term> mutualTermSet = new HashSet<Term>(ancestorSetB);	    
-			mutualTermSet.retainAll(ancestorSetA);
+			mutualTermSet.retainAll(ancestorSetA);  //intersection of two sets
 			Term result = null;
 			for (Term t : mutualTermSet){ 
 				Iterator<DefaultEdge> edgeIterator = thisDag.outgoingEdgesOf(t).iterator();
 				boolean allEdgesPointOut = false;
 				while (edgeIterator.hasNext()){
 					DefaultEdge thisEdge = edgeIterator.next();
-					if (mutualTermSet.contains(thisDag.getEdgeTarget(thisEdge))){
+					if (mutualTermSet.contains(thisDag.getEdgeTarget(thisEdge))){ 
+						//if there is any outgoing edge that leads to a term that is part of the intersection
 						allEdgesPointOut = true;
 					}
 				}
-				if(!allEdgesPointOut){
+				if(!allEdgesPointOut){ 
+					//only consider as a result if there was no outgoing 
+					//edge leading to a term in the intersection of the two ancestorSet
+					//that will be the LCA
 					result = t;
 				}
 			}
@@ -411,7 +429,55 @@ public class Reader {
 				result = (2*n3)/(n1+n2+2*n3);
 			}			
 		} else { 
-			System.out.println("Term ID's not given correctly.");
+			System.out.println("Term ID's not given correctly or not present/not in the same tree.");
+		}
+		return result;
+	}
+	
+	/**
+	 * Calculates Resnik Similarity.
+	 * @return
+	 */
+	public double ResnikSim(String term1, String term2){
+		double result = 0;
+		Term thisTerm1 = dags.getTerms().get(term1);
+		Term thisTerm2 = dags.getTerms().get(term2);
+		Term commonAncestor = findCommonAncestor(thisTerm1,thisTerm2); 
+		if (thisTerm1!=null && thisTerm2!=null){
+			if (term1.equals(term2)){
+				System.out.println("Same terms.");
+			} else {
+				result = commonAncestor.getIC();
+			}			
+		} else { 
+			System.out.println("Term ID's not given correctly or not present/not in the same tree.");
+		}
+		return result;
+	}
+	
+	/**
+	 * Calculates DekangLin Similarity.
+	 * @param term1
+	 * @param term2
+	 * @return
+	 */
+	public double DekangLinSim(String term1, String term2){
+		double result =0;
+		Term thisTerm1 = dags.getTerms().get(term1);
+		Term thisTerm2 = dags.getTerms().get(term2); 
+		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
+		if (thisTerm1!=null && thisTerm2!=null){
+			thisDag = dagSelector(thisTerm1);
+			if (term1.equals(term2)){
+				System.out.println("Same terms.");
+				result = 1;
+			} else {
+				double description = thisTerm1.getIC() + thisTerm2.getIC();
+				double common = -2*Math.log(calculateRawIC(thisDag,thisTerm1)+calculateRawIC(thisDag,thisTerm2));
+				result = common/description;
+			}			
+		} else { 
+			System.out.println("Term ID's not given correctly or not present/not in the same tree.");
 		}
 		return result;
 	}
