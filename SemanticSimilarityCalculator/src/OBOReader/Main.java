@@ -1,23 +1,38 @@
 package OBOReader;
 
-import java.util.Scanner;
 
 import AnnotationReader.Reader;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 
 /**
  * @author zbvd935
  *
  */
-public class Main {
+public class Main extends Application{
 
-	
+	public void start (Stage primaryStage){
+		try {
+			BorderPane root = new BorderPane();
+			Scene scene = new Scene(root,400,400);
+			scene.getStylesheets().add("application/application.css");
+			primaryStage.setScene(scene);
+			primaryStage.show();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		Reader notationReader = new Reader();
-		String input = null;
+		launch(args);
+		
+		/*String input = null;
 		boolean function = true;
 		Scanner sc = new Scanner(System.in);
 		//System.out.println("Please feed me a command!");
@@ -88,7 +103,7 @@ public class Main {
 			}
 			}
 		}
-		sc.close();
+		sc.close();*/
 	}
 
 }
