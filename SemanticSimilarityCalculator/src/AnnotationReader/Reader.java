@@ -16,8 +16,7 @@ import java.util.stream.Stream;
 import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
-import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
-import org.jgrapht.experimental.dag.DirectedAcyclicGraph.CycleFoundException;
+import org.jgrapht.graph.DirectedAcyclicGraph;
 
 import OBOReader.DagBuilder;
 import OBOReader.Term;
@@ -50,7 +49,7 @@ public class Reader {
 			calculateIC(annotDagBP);
 			calculateIC(annotDagMF);
 			calculateIC(annotDagCC);
-		} catch (IOException | CycleFoundException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
@@ -87,7 +86,7 @@ public class Reader {
 	 * @throws IOException
 	 * @throws CycleFoundException
 	 */
-	private void parse(HashSet<String> filters) throws IOException, CycleFoundException {
+	private void parse(HashSet<String> filters) throws IOException {
 		ClassLoader cl = getClass().getClassLoader();
 		File annFile = new File(cl.getResource("./AnnotationFiles/gene_association.ecocyc").getFile());
 	    FileReader fr = new FileReader(annFile);
@@ -108,7 +107,7 @@ public class Reader {
 							if (!thisTerm.addGene(gene)) {
 								System.out.println("Gene already exists in the Set.");
 							}
-							this.termMap.put(thisTerm, thisDag.getAncestors(thisDag, thisTerm));
+							this.termMap.put(thisTerm, thisDag.getAncestors(thisTerm));
 						}
 					}
 				}
@@ -123,7 +122,7 @@ public class Reader {
 	 * This method finishes the up propagation by reading the Map and finding relevant Edges
 	 * @throws CycleFoundException
 	 */
-	private void dagBuilder() throws CycleFoundException{
+	private void dagBuilder(){
 		DirectedAcyclicGraph<Term, DefaultEdge> temporaryDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		Iterator<Entry<Term, Set<Term>>> mapIterator = this.termMap.entrySet().iterator();
 		while(mapIterator.hasNext()){
@@ -139,7 +138,7 @@ public class Reader {
 	        	temporaryDag.addVertex(thisAncestor);
 	        	if(relevantOBODag.containsEdge(thisAncestor, thisTerm)){
 	        		//System.out.println("Edge has been found in original DAG.");
-	        		temporaryDag.addDagEdge(thisAncestor, thisTerm);
+	        		temporaryDag.addEdge(thisAncestor, thisTerm);
 	        	}	
 	        }
 	        //double loop in the same set to find all existing edges between Terms in original dag
@@ -149,11 +148,11 @@ public class Reader {
 	            {    
 	            	if(relevantOBODag.containsEdge(t1, t2)){
 		        		//System.out.println("Edge has been found in original DAG.");
-		        		temporaryDag.addDagEdge(t1, t2);
+		        		temporaryDag.addEdge(t1, t2);
 		        	}
 	            	if(relevantOBODag.containsEdge(t2, t1)){
 		        		//System.out.println("Edge has been found in original DAG.");
-		        		temporaryDag.addDagEdge(t2, t1);
+		        		temporaryDag.addEdge(t2, t1);
 		        	}
 	            }
 	         }
@@ -177,7 +176,7 @@ public class Reader {
 	 */
 	private void uppropagate(DirectedAcyclicGraph<Term, DefaultEdge> dag){
 		for(Term t : dag.vertexSet()){
-			for(Term ancestor : dag.getAncestors(dag, t)){
+			for(Term ancestor : dag.getAncestors(t)){
 				if (!ancestor.addGenes(t.getGeneList())){
 					System.out.println("Gene Set was not modified for term "+ancestor.getID());
 				}
@@ -316,8 +315,8 @@ public class Reader {
 		if (thisTerm1!=null && thisTerm2!=null){
 			thisDag = dagSelector(thisTerm1);
 			}
-		Set<Term> ancestorSetA = thisDag.getAncestors(thisDag, thisTerm1);
-		Set<Term> ancestorSetB = thisDag.getAncestors(thisDag, thisTerm2);
+		Set<Term> ancestorSetA = thisDag.getAncestors(thisTerm1);
+		Set<Term> ancestorSetB = thisDag.getAncestors(thisTerm2);
 		//if one term's ancestorSet contains the other term
 		if (ancestorSetA.size() < ancestorSetB.size()){   // term1 is closer to root
 			if(ancestorSetB.contains(thisTerm1)){
@@ -386,8 +385,8 @@ public class Reader {
 		int shortestDistance = 100000000;  //initial big distance
 		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		thisDag = dagSelector(thisTerm1);
-		Set<Term> ancestorsTerm1 = thisDag.getAncestors(thisDag, thisTerm1);
-		Set<Term> ancestorsTerm2 = thisDag.getAncestors(thisDag, thisTerm2);
+		Set<Term> ancestorsTerm1 = thisDag.getAncestors(thisTerm1);
+		Set<Term> ancestorsTerm2 = thisDag.getAncestors(thisTerm2);
 		Term tempTerm = null;
 		Term targetTerm = null;
 		if (ancestorsTerm1.size() < ancestorsTerm2.size()){

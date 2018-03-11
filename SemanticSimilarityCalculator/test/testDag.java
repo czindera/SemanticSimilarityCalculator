@@ -3,7 +3,7 @@ import static org.junit.Assert.*;
 import java.util.HashSet;
 
 import org.jgraph.graph.DefaultEdge;
-import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
+import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.junit.Before;
 import org.junit.Test;
 

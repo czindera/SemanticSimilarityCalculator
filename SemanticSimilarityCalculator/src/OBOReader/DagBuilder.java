@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.jgraph.graph.DefaultEdge;
-import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
-import org.jgrapht.experimental.dag.DirectedAcyclicGraph.CycleFoundException;
+import org.jgrapht.graph.DirectedAcyclicGraph;
+
 
 public class DagBuilder {
 	private BufferedReader in,in2;
@@ -23,12 +23,13 @@ public class DagBuilder {
 		this.dagBP = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		this.dagMF = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		this.dagCC = new DirectedAcyclicGraph<>(DefaultEdge.class);
-			try {
-				parse();
-			} catch (IOException | CycleFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}			
+				try {
+					parse();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			
 	}
 	
 	/**
@@ -147,7 +148,7 @@ public class DagBuilder {
 	 * @throws IOException
 	 * @throws CycleFoundException 
 	 */
-	private void createEdges() throws IOException, CycleFoundException {
+	private void createEdges() throws IOException {
 		String line;
 		String fromVertex=null;
 		String toVertex=null;
@@ -194,7 +195,7 @@ public class DagBuilder {
 	 * @throws IOException
 	 * @throws CycleFoundException 
 	 */
-	private void parse() throws IOException, CycleFoundException {
+	private void parse() throws IOException {
 		ClassLoader cl = getClass().getClassLoader();
 		File file = new File(cl.getResource("./OBOfiles/go-basic.obo").getFile());
 		File file2 = new File(cl.getResource("./OBOfiles/go-basic.obo").getFile());
@@ -257,13 +258,13 @@ public class DagBuilder {
 			System.out.println("............Information about this term..............");
 			System.out.println(thisTerm.toString());
 			//System.out.println("The degree of this Node is: "+thisDag.degreeOf(thisTerm));
-			Iterator<Term> myAncIterator = thisDag.getAncestors(thisDag, thisTerm).iterator();
+			Iterator<Term> myAncIterator = thisDag.getAncestors(thisTerm).iterator();
 			System.out.println(".....................Ancestors.......................");
 			while (myAncIterator.hasNext()){
 				Term nextTerm = myAncIterator.next();
 				System.out.println(nextTerm.toString());
 			}
-			Iterator<Term> myChildIterator = thisDag.getDescendants(thisDag, thisTerm).iterator();
+			Iterator<Term> myChildIterator = thisDag.getDescendants(thisTerm).iterator();
 			System.out.println(".....................Descendents.....................");
 			while (myChildIterator.hasNext()){
 				Term nextTerm = myChildIterator.next();
