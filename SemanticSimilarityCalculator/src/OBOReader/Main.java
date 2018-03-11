@@ -13,6 +13,9 @@ import javafx.stage.Stage;
  */
 public class Main extends Application{
 
+	/**
+	 * start method for view.
+	 */
 	public void start (Stage primaryStage){
 		try {
 			BorderPane root = new BorderPane();
