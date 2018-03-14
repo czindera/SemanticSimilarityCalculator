@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="700.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.Controller">
+   <children>
+      <ComboBox fx:id="organism" layoutX="79.0" layoutY="48.0" prefHeight="25.0" prefWidth="256.0" />
+      <Text layoutX="20.0" layoutY="65.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Organism" />
+      <CheckBox fx:id="EXP" layoutX="40.0" layoutY="105.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="52.0" selected="true" text="EXP" />
+      <CheckBox fx:id="IDA" layoutX="92.0" layoutY="105.0" mnemonicParsing="false" selected="true" text="IDA" />
+      <CheckBox fx:id="IPI" layoutX="143.0" layoutY="105.0" mnemonicParsing="false" selected="true" text="IPI" />
+      <CheckBox fx:id="IMP" layoutX="186.0" layoutY="105.0" mnemonicParsing="false" selected="true" text="IMP" />
+      <CheckBox fx:id="IGI" layoutX="240.0" layoutY="105.0" mnemonicParsing="false" selected="true" text="IGI" />
+      <CheckBox fx:id="IEP" layoutX="288.0" layoutY="105.0" mnemonicParsing="false" selected="true" text="IEP" />
+      <CheckBox fx:id="TAS" layoutX="388.0" layoutY="105.0" mnemonicParsing="false" text="TAS" />
+      <CheckBox fx:id="NAS" layoutX="446.0" layoutY="105.0" mnemonicParsing="false" text="NAS" />
+      <Text layoutX="144.0" layoutY="95.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Experimental" />
+      <Text layoutX="388.0" layoutY="95.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Author statement" />
+      <Text layoutX="9.0" layoutY="168.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Computational" wrappingWidth="78.62109375" />
+      <Text layoutX="25.0" layoutY="185.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Analysis" />
+      <CheckBox fx:id="ISS" layoutX="92.0" layoutY="147.0" mnemonicParsing="false" text="ISS" />
+      <CheckBox fx:id="IGC" layoutX="92.0" layoutY="181.0" mnemonicParsing="false" text="IGC" />
+      <CheckBox fx:id="ISO" layoutX="141.0" layoutY="147.0" mnemonicParsing="false" text="ISO" />
+      <CheckBox fx:id="IBA" layoutX="141.0" layoutY="181.0" mnemonicParsing="false" text="IBA" />
+      <CheckBox fx:id="ISA" layoutX="192.0" layoutY="147.0" mnemonicParsing="false" text="ISA" />
+      <CheckBox fx:id="ISM" layoutX="242.0" layoutY="147.0" mnemonicParsing="false" text="ISM" />
+      <CheckBox fx:id="IBD" layoutX="192.0" layoutY="181.0" mnemonicParsing="false" text="IBD" />
+      <CheckBox fx:id="IKR" layoutX="242.0" layoutY="181.0" mnemonicParsing="false" text="IKR" />
+      <CheckBox fx:id="IRD" layoutX="294.0" layoutY="181.0" mnemonicParsing="false" text="IRD" />
+      <CheckBox fx:id="RCA" layoutX="294.0" layoutY="147.0" mnemonicParsing="false" text="RCA" />
+      <Text layoutX="481.0" layoutY="150.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Curator statement" />
+      <Text layoutX="365.0" layoutY="194.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Electronic annotation" />
+      <CheckBox fx:id="IC" layoutX="481.0" layoutY="157.0" mnemonicParsing="false" text="IC" />
+      <CheckBox fx:id="ND" layoutX="529.0" layoutY="157.0" mnemonicParsing="false" text="ND" />
+      <CheckBox fx:id="IEA" layoutX="395.0" layoutY="164.0" mnemonicParsing="false" text="IEA" />
+      <RadioButton layoutX="28.0" layoutY="236.0" mnemonicParsing="false" selected="true" text="Term-wise calculation">
+         <toggleGroup>
+            <ToggleGroup fx:id="termorgene" />
+         </toggleGroup>
+      </RadioButton>
+      <RadioButton layoutX="28.0" layoutY="260.0" mnemonicParsing="false" text="Gene-wise calculation" toggleGroup="$termorgene" />
+      <Text layoutX="207.0" layoutY="241.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Select similarity method" />
+      <ChoiceBox fx:id="simMethod" layoutX="206.0" layoutY="248.0" prefWidth="150.0" />
+   </children>
+</AnchorPane>

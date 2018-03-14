@@ -199,16 +199,17 @@ public class DagBuilder {
 		ClassLoader cl = getClass().getClassLoader();
 		File file = new File(cl.getResource("./OBOfiles/go-basic.obo").getFile());
 		File file2 = new File(cl.getResource("./OBOfiles/go-basic.obo").getFile());
-	    FileReader fr = new FileReader(file);
-	    FileReader fr2 = new FileReader(file2);
-		in=new BufferedReader(fr);
-		in2=new BufferedReader(fr2);
-		String line;
-		while((line=next(0))!=null) {
-			if(line.equals("[Term]")) parseTerm();
-		}
-		in.close();
-		fr.close();
+                FileReader fr2;
+                String line;
+            try (FileReader fr = new FileReader(file)) {
+                fr2 = new FileReader(file2);
+                in=new BufferedReader(fr);
+                in2=new BufferedReader(fr2);
+                while((line=next(0))!=null) {
+                    if(line.equals("[Term]")) parseTerm();
+                }
+                in.close();
+            }
 		
 		//terms.printTerms();
 		buffer=null;
