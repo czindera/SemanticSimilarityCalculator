@@ -11,10 +11,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
+import org.controlsfx.control.textfield.TextFields;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -34,6 +34,8 @@ public class Controller {
         this.geneAssocSet = new LinkedHashSet<>();
         geneAssocSet.add("E.Coli(local)");
         organismList = FXCollections.observableArrayList(geneAssocSet);
+        
+        
     }
     
     /**
@@ -58,6 +60,10 @@ public class Controller {
     }
     
     @FXML
+    private ComboBox TermOrGene1;
+    @FXML
+    private ComboBox TermOrGene2;
+    @FXML
     private ComboBox organism;
     @FXML
     private ChoiceBox simMethod;
@@ -75,6 +81,10 @@ public class Controller {
         simMethod.setValue("Resnik");
         organism.setItems(organismList);
         organism.setValue("E.Coli(local)");
+        TermOrGene1.setItems(methodList);
+        //new AutoCompleteComboBoxListener<String>(TermOrGene1);
+        TermOrGene1.setEditable(true);
+        TextFields.bindAutoCompletion(TermOrGene1.getEditor(), TermOrGene1.getItems());
     }
     
     @FXML

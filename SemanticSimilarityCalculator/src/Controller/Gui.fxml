@@ -47,5 +47,7 @@
       <Text layoutX="207.0" layoutY="241.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Select similarity method" />
       <ChoiceBox fx:id="simMethod" layoutX="206.0" layoutY="248.0" prefWidth="150.0" />
       <Button layoutX="348.0" layoutY="48.0" mnemonicParsing="false" onAction="#updateList" text="Update" />
+      <ComboBox fx:id="TermOrGene1" layoutX="38.0" layoutY="325.0" prefHeight="25.0" prefWidth="221.0" />
+      <ComboBox fx:id="TermOrGene2" layoutX="336.0" layoutY="325.0" prefHeight="25.0" prefWidth="221.0" />
    </children>
 </AnchorPane>
