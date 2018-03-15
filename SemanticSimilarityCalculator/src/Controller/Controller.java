@@ -6,6 +6,8 @@
 package Controller;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -27,6 +29,7 @@ public class Controller {
     //ArrayList<String> geneassocList = new ArrayList<>();
     ObservableList<String> methodList = FXCollections.observableArrayList("Resnik","Lin","Jiang","SimgraSM","simUI","simGIC");
     LinkedHashSet<String> geneAssocSet;
+    final String dir;
     
     ObservableList<String> organismList;
     
@@ -34,6 +37,8 @@ public class Controller {
         this.geneAssocSet = new LinkedHashSet<>();
         geneAssocSet.add("E.Coli(local)");
         organismList = FXCollections.observableArrayList(geneAssocSet);
+        dir = System.getProperty("user.dir");
+        System.out.println(dir);
         
         
     }
@@ -76,8 +81,12 @@ public class Controller {
     }
     
     @FXML
-    private void buildListOfItems(ActionEvent event){
-        
+    private void buildListOfItems(ActionEvent event) throws IOException{
+        String selected = organism.getSelectionModel().getSelectedItem().toString();       
+        String location = dir+"\\"+selected;
+        if(Files.isRegularFile(Paths.get(location))) {
+            System.out.println("file exists");
+        }   
     }
     
     @FXML

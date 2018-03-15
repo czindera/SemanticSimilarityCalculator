@@ -3,7 +3,6 @@ package Controller;
 
 import AnnotationReader.Reader;
 import GZReader.GZipReader;
-import HttpReader.HttpReader;
 import java.io.File;
 import java.io.IOException;
 import javafx.application.Application;
@@ -44,7 +43,6 @@ public class Main extends Application{
 	 */
 	public static void main(String[] args) throws IOException {
 		//Reader notationReader = new Reader();
-		HttpReader webreader = new HttpReader();
                 //new NetFile(new File("AnnotationFiles/gene_association.gonuts"), "http://geneontology.org/gene-associations/gene_association.gonuts.gz", -1).load();
                 FileDownloader filedown = new FileDownloader();
                 GZipReader gzip = new GZipReader();
