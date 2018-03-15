@@ -1,4 +1,4 @@
-package netloader;
+package downloader;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -9,9 +9,9 @@ import java.net.URL;
 
 
 
-public class NetFile {
+public class FileDownloader {
     static String urls = "http://geneontology.org/gene-associations/gene_association.gonuts.gz";
-    public NetFile()throws IOException{
+    public FileDownloader()throws IOException{
         URL url = verify(urls);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         InputStream in = null;

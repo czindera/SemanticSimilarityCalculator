@@ -88,7 +88,7 @@ public class Reader {
 	 */
 	private void parse(HashSet<String> filters) throws IOException {
 		ClassLoader cl = getClass().getClassLoader();
-		File annFile = new File(cl.getResource("./AnnotationFiles/gene_association.ecocyc").getFile());
+		File annFile = new File(cl.getResource("./AnnotationFiles/E.Coli(local)").getFile());
 	    FileReader fr = new FileReader(annFile);
 		in=new BufferedReader(fr);
 		String line;

@@ -19,16 +19,7 @@ public class HttpReader {
     ArrayList<String> geneassocList;
     public HttpReader(){
         //return this list
-        this.geneassocList = new ArrayList<>();
-        try {
-            Document doc = Jsoup.connect("http://geneontology.org/gene-associations/").get();
-            Elements links = doc.select("a");
-            links.stream().filter((link) -> (link.text().endsWith(".gz"))).forEach((link) -> {
-                geneassocList.add("http://geneontology.org/gene-associations/"+link.text());
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        
             }
     
 }

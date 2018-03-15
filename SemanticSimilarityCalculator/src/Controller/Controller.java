@@ -5,32 +5,76 @@
  */
 package Controller;
 
+import java.io.IOException;
+import java.util.LinkedHashSet;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 /**
  *
  * @author Attila
  */
 public class Controller {
-    
+    //ArrayList<String> geneassocList = new ArrayList<>();
     ObservableList<String> methodList = FXCollections.observableArrayList("Resnik","Lin","Jiang","SimgraSM","simUI","simGIC");
-    //ObservableList<String> organismList = FXCollections.observableArrayList();
-
+    LinkedHashSet<String> geneAssocSet;
+    
+    ObservableList<String> organismList;
+    
+    public Controller(){
+        this.geneAssocSet = new LinkedHashSet<>();
+        geneAssocSet.add("E.Coli(local)");
+        organismList = FXCollections.observableArrayList(geneAssocSet);
+    }
+    
+    /**
+     * Creates a list of online available annotations.
+     * The combobox will be filled with these elements.
+     */
+    private void updateOrganismList(){        
+        try {
+            Document doc = Jsoup.connect("http://geneontology.org/gene-associations/").get();
+            Elements links = doc.select("a");
+            links.stream().filter((link) -> (link.text().endsWith(".gz"))).forEach((link) -> {
+                geneAssocSet.add(link.text());
+            });
+            //System.out.println(geneassocList.toString());
+            organismList.clear();
+            geneAssocSet.forEach((s) -> {
+                organismList.add(s);
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
     @FXML
     private ComboBox organism;
     @FXML
     private ChoiceBox simMethod;
     
     @FXML
+    private void updateList(ActionEvent event){
+        updateOrganismList();
+        organism.setItems(organismList);
+        organism.setValue("gene_association.ecocyc.gz");
+    }
+    
+    @FXML
     private void initialize(){
         simMethod.setItems(methodList);
         simMethod.setValue("Resnik");
-        //organism.setItems();
+        organism.setItems(organismList);
+        organism.setValue("E.Coli(local)");
     }
     
     @FXML
@@ -75,5 +119,5 @@ public class Controller {
     private CheckBox IKR;
     @FXML
     private CheckBox IRD;
-    
+
 }

@@ -9,8 +9,8 @@
 
 <AnchorPane prefHeight="700.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.Controller">
    <children>
-      <ComboBox fx:id="organism" layoutX="79.0" layoutY="48.0" prefHeight="25.0" prefWidth="256.0" />
-      <Text layoutX="20.0" layoutY="65.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Organism" />
+      <ComboBox fx:id="organism" layoutX="17.0" layoutY="48.0" prefHeight="25.0" prefWidth="318.0" />
+      <Text layoutX="78.0" layoutY="38.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Choose organism annotation file" wrappingWidth="174.515625" />
       <CheckBox fx:id="EXP" layoutX="40.0" layoutY="105.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="52.0" selected="true" text="EXP" />
       <CheckBox fx:id="IDA" layoutX="92.0" layoutY="105.0" mnemonicParsing="false" selected="true" text="IDA" />
       <CheckBox fx:id="IPI" layoutX="143.0" layoutY="105.0" mnemonicParsing="false" selected="true" text="IPI" />
@@ -46,5 +46,6 @@
       <RadioButton layoutX="28.0" layoutY="260.0" mnemonicParsing="false" text="Gene-wise calculation" toggleGroup="$termorgene" />
       <Text layoutX="207.0" layoutY="241.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Select similarity method" />
       <ChoiceBox fx:id="simMethod" layoutX="206.0" layoutY="248.0" prefWidth="150.0" />
+      <Button layoutX="348.0" layoutY="48.0" mnemonicParsing="false" onAction="#updateList" text="Update" />
    </children>
 </AnchorPane>

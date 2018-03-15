@@ -2,6 +2,7 @@ package Controller;
 
 
 import AnnotationReader.Reader;
+import GZReader.GZipReader;
 import HttpReader.HttpReader;
 import java.io.File;
 import java.io.IOException;
@@ -10,7 +11,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import netloader.NetFile;
+import downloader.FileDownloader;
 
 /**
  * @author zbvd935
@@ -26,7 +27,7 @@ public class Main extends Application{
 	public void start (Stage primaryStage){
             try {
                 Parent root;
-                root = FXMLLoader.load(getClass().getResource("../View/Gui.fxml"));
+                root = FXMLLoader.load(getClass().getResource("Gui.fxml"));
 
                 Scene scene = new Scene(root,600,700);
                 scene.getStylesheets().add("application/application.css");
@@ -45,7 +46,8 @@ public class Main extends Application{
 		//Reader notationReader = new Reader();
 		HttpReader webreader = new HttpReader();
                 //new NetFile(new File("AnnotationFiles/gene_association.gonuts"), "http://geneontology.org/gene-associations/gene_association.gonuts.gz", -1).load();
-                NetFile filedown = new NetFile();
+                FileDownloader filedown = new FileDownloader();
+                GZipReader gzip = new GZipReader();
                 launch(args);
 		
 		/*String input = null;

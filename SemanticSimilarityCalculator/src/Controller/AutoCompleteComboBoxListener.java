@@ -19,7 +19,7 @@ import javafx.scene.input.MouseEvent;
 
 /**
  *
- * @author Attila
+ * @author TODO: need to reference
  */
 
 public class AutoCompleteComboBoxListener implements EventHandler<KeyEvent> {
