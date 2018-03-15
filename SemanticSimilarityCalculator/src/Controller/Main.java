@@ -30,7 +30,7 @@ public class Main extends Application{
                 root = FXMLLoader.load(getClass().getResource("Gui.fxml"));
 
                 Scene scene = new Scene(root,600,700);
-                scene.getStylesheets().add("application/application.css");
+                scene.getStylesheets().add("./Controller/application.css");
                 primaryStage.setScene(scene);
                 primaryStage.show();
              

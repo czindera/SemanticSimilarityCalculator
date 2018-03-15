@@ -76,13 +76,17 @@ public class Controller {
     }
     
     @FXML
+    private void buildListOfItems(ActionEvent event){
+        
+    }
+    
+    @FXML
     private void initialize(){
         simMethod.setItems(methodList);
         simMethod.setValue("Resnik");
         organism.setItems(organismList);
         organism.setValue("E.Coli(local)");
         TermOrGene1.setItems(methodList);
-        //new AutoCompleteComboBoxListener<String>(TermOrGene1);
         TermOrGene1.setEditable(true);
         TextFields.bindAutoCompletion(TermOrGene1.getEditor(), TermOrGene1.getItems());
     }
