@@ -2,35 +2,22 @@ package OBOReader;
 
 
 import AnnotationReader.Reader;
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
-import javafx.stage.Stage;
+
 
 /**
  * @author zbvd935
  *
  */
-public class Main extends Application{
+public class Main {
 
-	public void start (Stage primaryStage){
-		try {
-			BorderPane root = new BorderPane();
-			Scene scene = new Scene(root,400,400);
-			scene.getStylesheets().add("application/application.css");
-			primaryStage.setScene(scene);
-			primaryStage.show();
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
+	
 	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		Reader notationReader = new Reader();
-		launch(args);
+		//launch(args);
 		
 		/*String input = null;
 		boolean function = true;

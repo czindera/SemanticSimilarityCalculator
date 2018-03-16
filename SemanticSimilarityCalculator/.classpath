@@ -16,6 +16,5 @@
 	<classpathentry kind="lib" path="src/lib/jgrapht-io-1.1.0-uber.jar"/>
 	<classpathentry kind="lib" path="src/lib/jgrapht-io-1.1.0.jar"/>
 	<classpathentry kind="lib" path="src/lib/jgraphx-2.0.0.1.jar"/>
-	<classpathentry kind="lib" path="C:/Java/jre/lib/ext/jfxrt.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
