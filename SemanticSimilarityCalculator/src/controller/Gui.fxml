@@ -47,9 +47,13 @@
       <Text layoutX="207.0" layoutY="241.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Select similarity method" />
       <ChoiceBox fx:id="simMethod" layoutX="206.0" layoutY="248.0" prefWidth="150.0" />
       <Button layoutX="348.0" layoutY="48.0" mnemonicParsing="false" onAction="#updateList" text="Update" />
-      <ComboBox fx:id="TermOrGene1" layoutX="38.0" layoutY="325.0" prefHeight="25.0" prefWidth="221.0" />
-      <ComboBox fx:id="TermOrGene2" layoutX="336.0" layoutY="325.0" prefHeight="25.0" prefWidth="221.0" />
-      <Button layoutX="186.0" layoutY="291.0" mnemonicParsing="false" onAction="#buildListOfItems" text="Build DAG" />
-      <Button layoutX="330.0" layoutY="291.0" mnemonicParsing="false" onAction="#downloadAndBuildListofItems" text="Download &amp; Build DAG" />
+      <ComboBox fx:id="bpTerms1" layoutX="38.0" layoutY="325.0" prefHeight="25.0" prefWidth="221.0" />
+      <ComboBox fx:id="bpTerms2" layoutX="334.0" layoutY="325.0" prefHeight="25.0" prefWidth="221.0" />
+      <Button layoutX="443.0" layoutY="236.0" mnemonicParsing="false" onAction="#buildListOfItems" text="Build DAGs" />
+      <Button layoutX="408.0" layoutY="273.0" mnemonicParsing="false" onAction="#downloadAndBuildListofItems" text="Download &amp; Build DAGs" />
+      <ComboBox fx:id="mfTerms1" layoutX="37.0" layoutY="380.0" prefHeight="25.0" prefWidth="221.0" />
+      <ComboBox fx:id="mfTerms2" layoutX="334.0" layoutY="380.0" prefHeight="25.0" prefWidth="221.0" />
+      <ComboBox fx:id="ccTerms1" layoutX="37.0" layoutY="439.0" prefHeight="25.0" prefWidth="221.0" />
+      <ComboBox fx:id="ccTerms2" layoutX="334.0" layoutY="439.0" prefHeight="25.0" prefWidth="221.0" />
    </children>
 </AnchorPane>

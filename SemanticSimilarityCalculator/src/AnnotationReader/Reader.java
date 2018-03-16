@@ -64,12 +64,31 @@ public class Reader {
 		System.out.println("DekangLin Similarity for GO:0050779 and GO:0019219 :  "+DekangLinSim("GO:0050779", "GO:0019219"));
 		System.out.println("JiangConrathSim Similarity for GO:0050779 and GO:0019219 :  "+JiangConrathSim("GO:0050779", "GO:0019219"));
 		System.out.println("Root of BP DAG has these genes associated to it: "+findRootOfDag(annotDagBP).getGeneList());
+		System.out.println("Root of CC DAG has these genes associated to it: "+findRootOfDag(annotDagCC).getGeneList());
+		System.out.println("Root of MF DAG has these genes associated to it: "+findRootOfDag(annotDagMF).getGeneList());
+
 		System.out.println("The term GO:0050779 has these genes associated to it: "+dags.getTerms().get("GO:0050779").getGeneList());
 	}
 	
 	public HashSet<String> getBPterms(){
 		HashSet<String> result = new HashSet<>();
 		for (Term t : annotDagBP.vertexSet()){
+			result.add(t.getID());
+		}
+		return result;
+	}
+	
+	public HashSet<String> getCCterms(){
+		HashSet<String> result = new HashSet<>();
+		for (Term t : annotDagCC.vertexSet()){
+			result.add(t.getID());
+		}
+		return result;
+	}
+	
+	public HashSet<String> getMFterms(){
+		HashSet<String> result = new HashSet<>();
+		for (Term t : annotDagMF.vertexSet()){
 			result.add(t.getID());
 		}
 		return result;
@@ -96,6 +115,10 @@ public class Reader {
                 calculateIC(annotDagBP);
                 calculateIC(annotDagMF);
                 calculateIC(annotDagCC);
+                System.out.println("Root of BP DAG has these genes associated to it: "+findRootOfDag(annotDagBP).getGeneList());
+        		System.out.println("Root of CC DAG has these genes associated to it: "+findRootOfDag(annotDagCC).getGeneList());
+        		System.out.println("Root of MF DAG has these genes associated to it: "+findRootOfDag(annotDagMF).getGeneList());
+
         } catch (IOException e) {
                 e.printStackTrace();
         }

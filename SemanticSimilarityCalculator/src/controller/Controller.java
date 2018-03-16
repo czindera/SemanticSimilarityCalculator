@@ -46,6 +46,10 @@ public class Controller {
     ObservableList<String> organismList;
     ObservableList<String> termListBP;
     ObservableList<String> geneListBP;
+    ObservableList<String> termListMF;
+    ObservableList<String> geneListMF;
+    ObservableList<String> termListCC;
+    ObservableList<String> geneListCC;
     
     public Controller(){
         annotReader = new Reader();
@@ -81,9 +85,17 @@ public class Controller {
     }
     
     @FXML
-    private ComboBox<String> TermOrGene1;
+    private ComboBox<String> bpTerms1;
     @FXML
-    private ComboBox<String> TermOrGene2;
+    private ComboBox<String> bpTerms2;
+    @FXML
+    private ComboBox<String> mfTerms1;
+    @FXML
+    private ComboBox<String> mfTerms2;
+    @FXML
+    private ComboBox<String> ccTerms1;
+    @FXML
+    private ComboBox<String> ccTerms2;
     @FXML
     private ComboBox<String> organism;
     @FXML
@@ -96,6 +108,26 @@ public class Controller {
         organism.setValue("gene_association.ecocyc.gz");
     }
     
+    private void initAndUpdateAllCombobox(){
+    	termListBP = FXCollections.observableArrayList(annotReader.getBPterms());
+    	bpTerms1.setItems(termListBP);
+        TextFields.bindAutoCompletion(bpTerms1.getEditor(), bpTerms1.getItems());
+        bpTerms2.setItems(termListBP);
+        TextFields.bindAutoCompletion(bpTerms2.getEditor(), bpTerms2.getItems());
+        
+        termListCC = FXCollections.observableArrayList(annotReader.getCCterms());
+    	ccTerms1.setItems(termListCC);
+        TextFields.bindAutoCompletion(ccTerms1.getEditor(), ccTerms1.getItems());
+        ccTerms2.setItems(termListCC);
+        TextFields.bindAutoCompletion(ccTerms2.getEditor(), ccTerms2.getItems());
+        
+        termListMF = FXCollections.observableArrayList(annotReader.getMFterms());
+    	mfTerms1.setItems(termListMF);
+        TextFields.bindAutoCompletion(mfTerms1.getEditor(), mfTerms1.getItems());
+        mfTerms2.setItems(termListMF);
+        TextFields.bindAutoCompletion(mfTerms2.getEditor(), mfTerms2.getItems());
+    }
+    
     @FXML
     private void buildListOfItems(ActionEvent event) throws IOException{
         String selected = organism.getSelectionModel().getSelectedItem().toString();       
@@ -106,12 +138,7 @@ public class Controller {
         
         if (selected.equals("E.Coli(local)")){
         	annotReader.updateReader("E.Coli(local)", getSelectedECodes());
-            //ObservableList<String> elements = FXCollections.observableArrayList("TEST");
-        	termListBP = FXCollections.observableArrayList(annotReader.getBPterms());
-        	TermOrGene1.setItems(termListBP);
-            TextFields.bindAutoCompletion(TermOrGene1.getEditor(), TermOrGene1.getItems());
-            TermOrGene2.setItems(termListBP);
-            TextFields.bindAutoCompletion(TermOrGene2.getEditor(), TermOrGene2.getItems());
+        	initAndUpdateAllCombobox();
         } else{
         	if(Files.isRegularFile(Paths.get(location))) {
                 createAlert("File exists on system, using the old file to build the DAG.");
@@ -119,12 +146,7 @@ public class Controller {
                 //getSelectedECodes().forEach( x -> System.out.println(x));
                 
                 annotReader.updateReader(selectedtxt, getSelectedECodes());
-                termListBP = FXCollections.observableArrayList(annotReader.getBPterms());
-                //ObservableList<String> elements = FXCollections.observableArrayList("TEST");
-                TermOrGene1.setItems(termListBP);
-                TextFields.bindAutoCompletion(TermOrGene1.getEditor(), TermOrGene1.getItems());
-                TermOrGene2.setItems(termListBP);
-                TextFields.bindAutoCompletion(TermOrGene2.getEditor(), TermOrGene2.getItems());
+                initAndUpdateAllCombobox();
                 
             } else {
                 createAlert("Annotation file not found, download it first!");
@@ -150,13 +172,7 @@ public class Controller {
         FileDownloader(selectedgz);
         gunzipIt(selectedgz,location);
         annotReader.updateReader(selectedtxt, getSelectedECodes());
-        //ObservableList<String> elements = FXCollections.observableArrayList("TEST");
-        termListBP = FXCollections.observableArrayList(annotReader.getBPterms());
-        TermOrGene1.setItems(termListBP);
-        TextFields.bindAutoCompletion(TermOrGene1.getEditor(), TermOrGene1.getItems());
-        TermOrGene2.setItems(termListBP);
-        TextFields.bindAutoCompletion(TermOrGene2.getEditor(), TermOrGene2.getItems());
-        //annotReader = new Reader(selected,getSelectedECodes());
+        initAndUpdateAllCombobox();
     }
     
     
@@ -257,8 +273,12 @@ public class Controller {
         TextFields.bindAutoCompletion(organism.getEditor(), organism.getItems());
         organism.setValue("E.Coli(local)");
         
-        TermOrGene1.setEditable(true);
-        TermOrGene2.setEditable(true);
+        bpTerms1.setEditable(true);
+        bpTerms2.setEditable(true);
+        ccTerms1.setEditable(true);
+        ccTerms2.setEditable(true);
+        mfTerms1.setEditable(true);
+        mfTerms2.setEditable(true);
     }
     
     @FXML
