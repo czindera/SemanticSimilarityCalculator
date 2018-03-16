@@ -197,8 +197,8 @@ public class DagBuilder {
 	 */
 	private void parse() throws IOException {
 		ClassLoader cl = getClass().getClassLoader();
-		File file = new File(cl.getResource("./OBOfiles/go.obo").getFile());
-		File file2 = new File(cl.getResource("./OBOfiles/go.obo").getFile());
+		File file = new File(cl.getResource("./OBOfiles/go-basic.obo").getFile());
+		File file2 = new File(cl.getResource("./OBOfiles/go-basic.obo").getFile());
                 FileReader fr2;
                 String line;
             try (FileReader fr = new FileReader(file)) {

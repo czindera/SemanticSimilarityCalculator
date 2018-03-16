@@ -1,5 +1,7 @@
 package AnnotationReader;
 
+
+import Controller.Controller;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -10,8 +12,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.GraphPath;
@@ -21,6 +21,8 @@ import org.jgrapht.graph.DirectedAcyclicGraph;
 import OBOReader.DagBuilder;
 import OBOReader.Term;
 import OBOReader.Terms;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Reader {
 	private BufferedReader in;
@@ -28,18 +30,23 @@ public class Reader {
 	private DirectedAcyclicGraph<Term, DefaultEdge> annotDagBP,annotDagMF,annotDagCC;
 	private Map<Term,Set<Term>> termMap;
 	private DagBuilder dags;
-	
+	private HashSet<String> initSet;
+        
+        private void setECodes(HashSet<String> set){
+            initSet = set;
+        }
+        
 	public Reader(){
 		in=null;
 		buffer = null;
 		this.annotDagBP = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		this.annotDagMF = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		this.annotDagCC = new DirectedAcyclicGraph<>(DefaultEdge.class);
-		this.termMap = new HashMap<Term,Set<Term>>();
+		this.termMap = new HashMap<>();
 		this.dags = new DagBuilder();
 		try {
-			HashSet<String> initSet = Stream.of("EXP", "IDA","IPI","IMP","IGI","IEP","TAS").collect(Collectors.toCollection(HashSet::new));
-			parse(initSet);
+			initSet = Stream.of("EXP", "IDA","IPI","IMP","IGI","IEP","TAS").collect(Collectors.toCollection(HashSet::new));		
+                        parse(initSet,"E.Coli(local)");
 			dagBuilder();
 			//call the uppropagate methods here
 			uppropagate(annotDagBP);
@@ -65,6 +72,32 @@ public class Reader {
 		System.out.println("Root of BP DAG has these genes associated to it: "+findRootOfDag(annotDagBP).getGeneList());
 		System.out.println("The term GO:0050779 has these genes associated to it: "+dags.getTerms().get("GO:0050779").getGeneList());
 	}
+        
+        public Reader(String fileName, HashSet<String> selectedCodes){
+            in=null;
+            buffer = null;
+            this.annotDagBP = new DirectedAcyclicGraph<>(DefaultEdge.class);
+            this.annotDagMF = new DirectedAcyclicGraph<>(DefaultEdge.class);
+            this.annotDagCC = new DirectedAcyclicGraph<>(DefaultEdge.class);
+            this.termMap = new HashMap<>();
+            this.dags = new DagBuilder();
+            try {
+                    
+                    parse(selectedCodes,fileName);
+                    
+                    //call the uppropagate methods here
+                    uppropagate(annotDagBP);
+                    uppropagate(annotDagMF);
+                    uppropagate(annotDagCC);
+                    //call methods here to calculate IC for all Terms
+                    calculateIC(annotDagBP);
+                    calculateIC(annotDagMF);
+                    calculateIC(annotDagCC);
+            } catch (IOException e) {
+                    e.printStackTrace();
+            }
+
+        }  
 	
 	/**
 	 * To get the next line of the source file
@@ -86,36 +119,42 @@ public class Reader {
 	 * @throws IOException
 	 * @throws CycleFoundException
 	 */
-	private void parse(HashSet<String> filters) throws IOException {
-		ClassLoader cl = getClass().getClassLoader();
-		File annFile = new File(cl.getResource("./AnnotationFiles/E.Coli(local)").getFile());
+	private void parse(HashSet<String> filters, String fileName) throws IOException {
+            ClassLoader cl = getClass().getClassLoader();
+            File annFile;
+            if (fileName.equals("E.Coli(local)")){
+                annFile = new File(cl.getResource("./AnnotationFiles/E.Coli(local)").getFile());
+            } else {
+                System.out.println(System.getProperty("user.dir")+"\\"+fileName);
+                annFile = new File(System.getProperty("user.dir")+"\\"+fileName);
+            }
 	    FileReader fr = new FileReader(annFile);
-		in=new BufferedReader(fr);
-		String line;
-		while((line=next())!=null) {
-			if(!line.startsWith("!")) {
-				String[] words = line.split("\\s+");
-				String goID = words[3];
-				String gene = words[1];
-				String eCode = words[5];
-				Terms allTerms = this.dags.getTerms();
-				if (goID.startsWith("GO")){
-					DirectedAcyclicGraph<Term, DefaultEdge> thisDag = this.dags.dagDecider(goID); 
-					if (thisDag!=null){
-						Term thisTerm = allTerms.get(goID);
-						if (filters.contains(eCode)){
-							if (!thisTerm.addGene(gene)) {
-								System.out.println("Gene already exists in the Set.");
-							}
-							this.termMap.put(thisTerm, thisDag.getAncestors(thisTerm));
-						}
-					}
-				}
-			}
-		}
-		in.close();
-		fr.close();
-		//System.out.println(temporaryDag.toString());
+            in=new BufferedReader(fr);
+            String line;
+            while((line=next())!=null) {
+                    if(!line.startsWith("!")) {
+                            String[] words = line.split("\\s+");
+                            String goID = words[3];
+                            String gene = words[1];
+                            String eCode = words[5];
+                            Terms allTerms = this.dags.getTerms();
+                            if (goID.startsWith("GO")){
+                                    DirectedAcyclicGraph<Term, DefaultEdge> thisDag = this.dags.dagDecider(goID); 
+                                    if (thisDag!=null){
+                                            Term thisTerm = allTerms.get(goID);
+                                            if (filters.contains(eCode)){
+                                                    if (!thisTerm.addGene(gene)) {
+                                                            System.out.println("Gene already exists in the Set.");
+                                                    }
+                                                    this.termMap.put(thisTerm, thisDag.getAncestors(thisTerm));
+                                            }
+                                    }
+                            }
+                    }
+            }
+            in.close();
+            fr.close();
+            //System.out.println(temporaryDag.toString());
 	}
 	
 	/**
@@ -397,7 +436,11 @@ public class Reader {
 			targetTerm = thisTerm2;
 		}
 		GraphPath<Term, DefaultEdge> path = new DijkstraShortestPath<Term, DefaultEdge>(thisDag).getPath( targetTerm, tempTerm);
-		shortestDistance = path.getEdgeList().size();
+		if (path != null) {
+                    shortestDistance = path.getEdgeList().size();                 
+                } else {
+                    //shortestDistance = 0;
+                }
 		/*for(DefaultEdge e : path.getEdgeList()){
 			System.out.println(thisDag.getEdgeSource(e).getID()+" --> "+thisDag.getEdgeTarget(e).getID());
 		}*/

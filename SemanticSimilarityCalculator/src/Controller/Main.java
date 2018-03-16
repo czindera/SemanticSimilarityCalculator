@@ -42,9 +42,8 @@ public class Main extends Application{
 	 * @param args
 	 */
 	public static void main(String[] args) throws IOException {
-		//Reader notationReader = new Reader();
-                //new NetFile(new File("AnnotationFiles/gene_association.gonuts"), "http://geneontology.org/gene-associations/gene_association.gonuts.gz", -1).load();
-                FileDownloader filedown = new FileDownloader();
+		Reader notationReader = new Reader();
+                //FileDownloader filedown = new FileDownloader();
                 GZipReader gzip = new GZipReader();
                 launch(args);
 		
