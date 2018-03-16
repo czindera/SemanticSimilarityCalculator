@@ -1,11 +1,20 @@
 package controller;
 
+import AnnotationReader.Reader;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.zip.GZIPInputStream;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -32,17 +41,17 @@ public class Controller {
     ObservableList<String> methodList = FXCollections.observableArrayList("Resnik","Lin","Jiang","SimgraSM","simUI","simGIC");
     LinkedHashSet<String> geneAssocSet;
     final String dir;
-    private HashSet<String> selectedECodes;
+    Reader annotReader;
     
     ObservableList<String> organismList;
     
     public Controller(){
-        this.geneAssocSet = new LinkedHashSet<>();
+        annotReader = new Reader();
+    	this.geneAssocSet = new LinkedHashSet<>();
         geneAssocSet.add("E.Coli(local)");
         organismList = FXCollections.observableArrayList(geneAssocSet);
         dir = System.getProperty("user.dir");
-        System.out.println(dir);
-        selectedECodes = new HashSet<>();   
+        //System.out.println(dir);   
     }
     
     /**
@@ -67,13 +76,13 @@ public class Controller {
     }
     
     @FXML
-    private ComboBox TermOrGene1;
+    private ComboBox<String> TermOrGene1;
     @FXML
     private ComboBox TermOrGene2;
     @FXML
-    private ComboBox organism;
+    private ComboBox<String> organism;
     @FXML
-    private ChoiceBox simMethod;
+    private ChoiceBox<String> simMethod;
     
     @FXML
     private void updateList(ActionEvent event){
@@ -88,10 +97,91 @@ public class Controller {
         String location = dir+"\\"+selected;
         if(Files.isRegularFile(Paths.get(location))) {
             createAlert("File exists on system, using the old file to build the DAG.");
-            //TODO
+            gunzipIt(selected,location);
+            annotReader = new Reader(selected,getSelectedECodes());
             
         } else {
             createAlert("Annotation file not found, download it first!");
+        }
+    }
+    
+    @FXML
+    private void downloadAndBuildListofItems(ActionEvent event) throws IOException{
+    	String selected = organism.getSelectionModel().getSelectedItem().toString();       
+        String location = dir+"\\"+selected;
+        if(Files.isRegularFile(Paths.get(location))) {
+            createAlert("Overwriting existing file.");    
+        } else {
+            createAlert("Downloading file to user directory.");   
+        }
+        FileDownloader(selected);
+        gunzipIt(selected,location);
+        annotReader = new Reader(selected,getSelectedECodes());
+    }
+    
+    
+    public void FileDownloader(String selected)throws IOException{
+    	String urls = "http://geneontology.org/gene-associations/"+selected;
+        URL url = verify(urls);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        InputStream in = null;
+        String filename = url.getFile();
+        filename = filename.substring(filename.lastIndexOf('/') + 1);
+        String path = new File(".").getAbsolutePath();
+        path = path.substring(0, path.length() - 2);
+        System.out.println(path);
+        FileOutputStream out = new FileOutputStream(path + File.separator + filename);
+        in = connection.getInputStream();
+        int read = -1;
+        byte[] buffer = new byte[4096];
+        while((read = in.read(buffer)) != -1){
+            out.write(buffer, 0, read);
+            System.out.println("[SYSTEM/INFO]: Downloading file...");
+        }
+        in.close();
+        out.close();
+        System.out.println("[SYSTEM/INFO]: File Downloaded!");
+    }
+        
+    
+    private URL verify(String url){
+        if(!url.toLowerCase().startsWith("http://")) {
+            return null;
+        }
+        URL verifyUrl = null;
+
+        try{
+            verifyUrl = new URL(url);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return verifyUrl;
+    }
+    
+    
+    private void gunzipIt(String fileName, String location) throws IOException{
+
+        byte[] buffer = new byte[1024];
+        GZIPInputStream gzis = null;
+        FileOutputStream out = null;
+        try{
+            gzis = new GZIPInputStream(new FileInputStream(location));
+            System.out.print("fileName: "+fileName);
+            System.out.print("location: "+location);
+
+            out =  new FileOutputStream("C:\\Users\\Attila\\Documents\\NetBeansProjects\\SemanticSimilarityCalculator\\SemanticSimilarityCalculator\\"+fileName+".txt");
+
+            int len;
+            while ((len = gzis.read(buffer)) > 0) {
+                   out.write(buffer, 0, len);
+            }
+            System.out.println("File converted!");
+
+        }catch(IOException ex){
+            ex.printStackTrace();
+        } finally {
+            gzis.close();
+            out.close();
         }
     }
     
@@ -101,8 +191,8 @@ public class Controller {
         alert.show();
     }
     
-    public HashSet<String> getSelectedECodes(){
-        HashSet<String> result= new HashSet<>();
+    private HashSet<String> getSelectedECodes(){
+        HashSet<String> selectedECodes= new HashSet<>();
         if (EXP.isSelected()){selectedECodes.add("EXP");}
         if (IDA.isSelected()){selectedECodes.add("IDA");}
         if (IPI.isSelected()){selectedECodes.add("IPI");}
@@ -125,7 +215,7 @@ public class Controller {
         if (IKR.isSelected()){selectedECodes.add("IKR");}
         if (IRD.isSelected()){selectedECodes.add("IRD");}
         
-        return result;
+        return selectedECodes;
     }
     
     @FXML

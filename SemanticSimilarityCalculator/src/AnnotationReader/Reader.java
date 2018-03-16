@@ -28,6 +28,7 @@ public class Reader {
 	private DirectedAcyclicGraph<Term, DefaultEdge> annotDagBP,annotDagMF,annotDagCC;
 	private Map<Term,Set<Term>> termMap;
 	private DagBuilder dags;
+	private HashSet<String> initSet;
 	
 	public Reader(){
 		in=null;
@@ -38,8 +39,8 @@ public class Reader {
 		this.termMap = new HashMap<Term,Set<Term>>();
 		this.dags = new DagBuilder();
 		try {
-			HashSet<String> initSet = Stream.of("EXP", "IDA","IPI","IMP","IGI","IEP","TAS").collect(Collectors.toCollection(HashSet::new));
-			parse(initSet);
+			initSet = Stream.of("EXP", "IDA","IPI","IMP","IGI","IEP").collect(Collectors.toCollection(HashSet::new));
+			parse(initSet,"E.Coli(local)");
 			dagBuilder();
 			//call the uppropagate methods here
 			uppropagate(annotDagBP);
@@ -66,6 +67,33 @@ public class Reader {
 		System.out.println("The term GO:0050779 has these genes associated to it: "+dags.getTerms().get("GO:0050779").getGeneList());
 	}
 	
+	public Reader(String fileName, HashSet<String> selectedCodes){
+        in=null;
+        buffer = null;
+        this.annotDagBP = new DirectedAcyclicGraph<>(DefaultEdge.class);
+        this.annotDagMF = new DirectedAcyclicGraph<>(DefaultEdge.class);
+        this.annotDagCC = new DirectedAcyclicGraph<>(DefaultEdge.class);
+        this.termMap = new HashMap<>();
+        //this.dags = new DagBuilder();
+        try {
+                
+                parse(selectedCodes,fileName);
+                dagBuilder();
+                
+                //call the uppropagate methods here
+                uppropagate(annotDagBP);
+                uppropagate(annotDagMF);
+                uppropagate(annotDagCC);
+                //call methods here to calculate IC for all Terms
+                calculateIC(annotDagBP);
+                calculateIC(annotDagMF);
+                calculateIC(annotDagCC);
+        } catch (IOException e) {
+                e.printStackTrace();
+        }
+
+    }  
+	
 	/**
 	 * To get the next line of the source file
 	 * @return
@@ -86,10 +114,16 @@ public class Reader {
 	 * @throws IOException
 	 * @throws CycleFoundException
 	 */
-	private void parse(HashSet<String> filters) throws IOException {
+	private void parse(HashSet<String> filters, String fileName) throws IOException {
 		ClassLoader cl = getClass().getClassLoader();
-		File annFile = new File(cl.getResource("./AnnotationFiles/E.Coli(local)").getFile());
-	    FileReader fr = new FileReader(annFile);
+		File annFile;
+		if (fileName.equals("E.Coli(local)")){
+            annFile = new File(cl.getResource("./AnnotationFiles/E.Coli(local)").getFile());
+        } else {
+            System.out.println(System.getProperty("user.dir")+"\\"+fileName);
+            annFile = new File(System.getProperty("user.dir")+"\\"+fileName);
+        }
+		FileReader fr = new FileReader(annFile);
 		in=new BufferedReader(fr);
 		String line;
 		while((line=next())!=null) {

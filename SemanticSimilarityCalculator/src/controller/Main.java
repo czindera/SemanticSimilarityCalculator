@@ -2,8 +2,6 @@ package controller;
 
 
 import java.io.IOException;
-
-import AnnotationReader.Reader;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -38,10 +36,10 @@ public class Main extends Application{
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Reader notationReader = new Reader();
-		Controller control = new Controller();
+		//Reader notationReader = new Reader();
+		//Controller control = new Controller();
 		launch(args);
-		control.getSelectedECodes();
+		
 		
 		/*String input = null;
 		boolean function = true;
