@@ -39,7 +39,9 @@ public class Main extends Application{
 	 */
 	public static void main(String[] args) {
 		Reader notationReader = new Reader();
+		Controller control = new Controller();
 		launch(args);
+		control.getSelectedECodes();
 		
 		/*String input = null;
 		boolean function = true;
