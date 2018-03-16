@@ -421,7 +421,7 @@ public class Reader {
 	 * @return
 	 */
 	private int distanceOnSameWalk(Term thisTerm1, Term thisTerm2){
-		int shortestDistance = 100000000;  //initial big distance
+		int shortestDistance =  1000000; //initial big distance
 		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		thisDag = dagSelector(thisTerm1);
 		Set<Term> ancestorsTerm1 = thisDag.getAncestors(thisTerm1);
@@ -435,10 +435,11 @@ public class Reader {
 			tempTerm = thisTerm1;
 			targetTerm = thisTerm2;
 		}
-		GraphPath<Term, DefaultEdge> path = new DijkstraShortestPath<Term, DefaultEdge>(thisDag).getPath( targetTerm, tempTerm);
+		GraphPath<Term, DefaultEdge> path = new DijkstraShortestPath<>(thisDag).getPath( targetTerm, tempTerm);
 		if (path != null) {
                     shortestDistance = path.getEdgeList().size();                 
                 } else {
+                    System.out.println("No path was found.");
                     //shortestDistance = 0;
                 }
 		/*for(DefaultEdge e : path.getEdgeList()){

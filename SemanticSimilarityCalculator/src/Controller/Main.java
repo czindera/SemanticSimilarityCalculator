@@ -40,6 +40,7 @@ public class Main extends Application{
 	
 	/**
 	 * @param args
+         * @throws java.io.IOException
 	 */
 	public static void main(String[] args) throws IOException {
 		Reader notationReader = new Reader();
