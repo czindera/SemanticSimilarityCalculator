@@ -38,12 +38,12 @@
       <CheckBox fx:id="IC" layoutX="481.0" layoutY="157.0" mnemonicParsing="false" text="IC" />
       <CheckBox fx:id="ND" layoutX="529.0" layoutY="157.0" mnemonicParsing="false" text="ND" />
       <CheckBox fx:id="IEA" layoutX="395.0" layoutY="164.0" mnemonicParsing="false" text="IEA" />
-      <RadioButton fx:id="termwise" layoutX="28.0" layoutY="236.0" mnemonicParsing="false" selected="true" text="Term-wise calculation">
+      <RadioButton layoutX="28.0" layoutY="236.0" mnemonicParsing="false" selected="true" text="Term-wise calculation">
          <toggleGroup>
             <ToggleGroup fx:id="termorgene" />
          </toggleGroup>
       </RadioButton>
-      <RadioButton fx:id="genewise" layoutX="28.0" layoutY="260.0" mnemonicParsing="false" text="Gene-wise calculation" toggleGroup="$termorgene" />
+      <RadioButton layoutX="28.0" layoutY="260.0" mnemonicParsing="false" text="Gene-wise calculation" toggleGroup="$termorgene" />
       <Text layoutX="207.0" layoutY="241.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Select similarity method" />
       <ChoiceBox fx:id="simMethod" layoutX="206.0" layoutY="248.0" prefWidth="150.0" />
       <Button layoutX="348.0" layoutY="48.0" mnemonicParsing="false" onAction="#updateList" text="Update" />
@@ -51,7 +51,5 @@
       <ComboBox fx:id="TermOrGene2" layoutX="336.0" layoutY="325.0" prefHeight="25.0" prefWidth="221.0" />
       <Button layoutX="186.0" layoutY="291.0" mnemonicParsing="false" onAction="#buildListOfItems" text="Build DAG" />
       <Button layoutX="330.0" layoutY="291.0" mnemonicParsing="false" onAction="#downloadAndBuildListofItems" text="Download &amp; Build DAG" />
-      <Button layoutX="242.0" layoutY="367.0" mnemonicParsing="false" onAction="#calculate" text="Calculate Similarity" />
-      <Label fx:id="resultLabel" layoutX="52.0" layoutY="437.0" prefHeight="34.0" prefWidth="298.0" text="Label" />
    </children>
 </AnchorPane>

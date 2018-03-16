@@ -18,10 +18,10 @@ public class Main extends Application{
 	public void start (Stage primaryStage){
         try {
             Parent root;
-            root = FXMLLoader.load(getClass().getClassLoader().getResource("Gui.fxml"));
+            root = FXMLLoader.load(getClass().getResource("Gui.fxml"));
 
             Scene scene = new Scene(root,600,700);
-            scene.getStylesheets().add("./controller/application.css");
+            scene.getStylesheets().add("./Controller/application.css");
             primaryStage.setScene(scene);
             primaryStage.show();
          

@@ -25,8 +25,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
 import javafx.scene.layout.Region;
 import org.controlsfx.control.textfield.TextFields;
 import org.jsoup.Jsoup;
@@ -85,10 +83,6 @@ public class Controller {
     private ComboBox<String> organism;
     @FXML
     private ChoiceBox<String> simMethod;
-    @FXML
-    private RadioButton termwise;
-    @FXML 
-    private RadioButton genewise;
     
     @FXML
     private void updateList(ActionEvent event){
@@ -105,23 +99,10 @@ public class Controller {
         String location = dir+"\\"+selected;
         if(Files.isRegularFile(Paths.get(location))) {
             createAlert("File exists on system, using the old file to build the DAG.");
-            //System.out.println("selected: "+selected);
+            System.out.println("selected: "+selected);
             //getSelectedECodes().forEach( x -> System.out.println(x));
             
             annotReader.updateReader(selected, getSelectedECodes());
-            
-            ObservableList<String> elements = FXCollections.observableArrayList();
-            if (termwise.isSelected()){
-            	System.out.println("Term-wise calculation was selected and calculating.");
-            	elements = annotReader.getTerms();
-            } else {
-            	//elements = annotReader.
-            }
-            TermOrGene1.setItems(elements);
-            TermOrGene2.setItems(elements);
-            TextFields.bindAutoCompletion(TermOrGene1.getEditor(), TermOrGene1.getItems());
-            TextFields.bindAutoCompletion(TermOrGene2.getEditor(), TermOrGene2.getItems());
-            
             
         } else {
             createAlert("Annotation file not found, download it first!");
@@ -138,29 +119,14 @@ public class Controller {
         if(Files.isRegularFile(Paths.get(location))) {
             createAlert("Overwriting existing file.");    
         } else {
-            createAlert("Downloading file to user directory: "+dir);   
+            createAlert("Downloading file to user directory.");   
         }
         FileDownloader(selectedgz);
         gunzipIt(selectedgz,location);
-        annotReader.updateReader(selectedtxt, getSelectedECodes());
-        ObservableList<String> elements = FXCollections.observableArrayList();
-        if (termwise.isSelected()){
-        	elements = annotReader.getTerms();
-        } else {
-        	//elements = annotReader.
-        }
-        TermOrGene1.setItems(elements);
-        TermOrGene2.setItems(elements);
-        TextFields.bindAutoCompletion(TermOrGene1.getEditor(), TermOrGene1.getItems());
-        TextFields.bindAutoCompletion(TermOrGene2.getEditor(), TermOrGene2.getItems());
-        
+        //annotReader = new Reader(selected,getSelectedECodes());
     }
     
-    /**
-     * https://stackoverflow.com/questions/921262/how-to-download-and-save-a-file-from-internet-using-java
-     * @param selected
-     * @throws IOException
-     */
+    
     public void FileDownloader(String selected)throws IOException{
     	String urls = "http://geneontology.org/gene-associations/"+selected;
     	URL url = verify(urls);
@@ -257,20 +223,12 @@ public class Controller {
         organism.setEditable(true);
         TextFields.bindAutoCompletion(organism.getEditor(), organism.getItems());
         organism.setValue("E.Coli(local)");
-        //TermOrGene1.setItems(methodList);
-        TermOrGene1.setEditable(true);        
-        TermOrGene2.setEditable(true);
+        TermOrGene1.setItems(methodList);
+        TermOrGene1.setEditable(true);
+        TextFields.bindAutoCompletion(TermOrGene1.getEditor(), TermOrGene1.getItems());
         
     }
     
-    @FXML void calculate(ActionEvent event){
-    	String elem1 = TermOrGene1.getSelectionModel().getSelectedItem();
-    	String elem2 = TermOrGene2.getSelectionModel().getSelectedItem();
-    	resultLabel.setText(String.valueOf(annotReader.ResnikSim(elem1, elem2)));
-    }
-    
-    @FXML
-    private Label resultLabel;
     @FXML
     private CheckBox EXP;
     @FXML
