@@ -94,25 +94,43 @@ public class Controller {
     @FXML
     private void buildListOfItems(ActionEvent event) throws IOException{
         String selected = organism.getSelectionModel().getSelectedItem().toString();       
-        selected.substring(0, selected.length() - 3);
-        selected = selected+".txt";
+        String selectedtxt = selected;
+    	selectedtxt.substring(0, selectedtxt.length() - 3);
+        selectedtxt = selectedtxt+".txt";
         String location = dir+"\\"+selected;
-        if(Files.isRegularFile(Paths.get(location))) {
-            createAlert("File exists on system, using the old file to build the DAG.");
-            System.out.println("selected: "+selected);
-            //getSelectedECodes().forEach( x -> System.out.println(x));
-            
-            annotReader.updateReader(selected, getSelectedECodes());
-            
-        } else {
-            createAlert("Annotation file not found, download it first!");
+        
+        if (selected.equals("E.Coli(local)")){
+        	annotReader.updateReader("E.Coli(local)", getSelectedECodes());
+            ObservableList<String> elements = FXCollections.observableArrayList("TEST");
+            TermOrGene1.setItems(elements);
+            TextFields.bindAutoCompletion(TermOrGene1.getEditor(), TermOrGene1.getItems());
+            TermOrGene2.setItems(elements);
+            TextFields.bindAutoCompletion(TermOrGene2.getEditor(), TermOrGene2.getItems());
+        } else{
+        	if(Files.isRegularFile(Paths.get(location))) {
+                createAlert("File exists on system, using the old file to build the DAG.");
+                System.out.println("selected: "+selected);
+                //getSelectedECodes().forEach( x -> System.out.println(x));
+                
+                annotReader.updateReader(selectedtxt, getSelectedECodes());
+                ObservableList<String> elements = FXCollections.observableArrayList("TEST");
+                TermOrGene1.setItems(elements);
+                TextFields.bindAutoCompletion(TermOrGene1.getEditor(), TermOrGene1.getItems());
+                TermOrGene2.setItems(elements);
+                TextFields.bindAutoCompletion(TermOrGene2.getEditor(), TermOrGene2.getItems());
+                
+            } else {
+                createAlert("Annotation file not found, download it first!");
+            }
         }
+        
     }
     
     @FXML
     private void downloadAndBuildListofItems(ActionEvent event) throws IOException{
     	String selectedgz = organism.getSelectionModel().getSelectedItem().toString();       
-        String selectedtxt = selectedgz;
+    	if (selectedgz.equals("E.Coli(local)")){return;}
+    	String selectedtxt = selectedgz;
     	selectedtxt.substring(0, selectedtxt.length() - 3);
         selectedtxt = selectedtxt+".txt";
         String location = dir+"\\"+selectedgz;
@@ -121,8 +139,15 @@ public class Controller {
         } else {
             createAlert("Downloading file to user directory.");   
         }
+        
         FileDownloader(selectedgz);
         gunzipIt(selectedgz,location);
+        annotReader.updateReader(selectedtxt, getSelectedECodes());
+        ObservableList<String> elements = FXCollections.observableArrayList("TEST");
+        TermOrGene1.setItems(elements);
+        TextFields.bindAutoCompletion(TermOrGene1.getEditor(), TermOrGene1.getItems());
+        TermOrGene2.setItems(elements);
+        TextFields.bindAutoCompletion(TermOrGene2.getEditor(), TermOrGene2.getItems());
         //annotReader = new Reader(selected,getSelectedECodes());
     }
     
@@ -223,10 +248,9 @@ public class Controller {
         organism.setEditable(true);
         TextFields.bindAutoCompletion(organism.getEditor(), organism.getItems());
         organism.setValue("E.Coli(local)");
-        TermOrGene1.setItems(methodList);
-        TermOrGene1.setEditable(true);
-        TextFields.bindAutoCompletion(TermOrGene1.getEditor(), TermOrGene1.getItems());
         
+        TermOrGene1.setEditable(true);
+        TermOrGene2.setEditable(true);
     }
     
     @FXML
