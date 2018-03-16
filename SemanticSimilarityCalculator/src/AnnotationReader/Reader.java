@@ -21,6 +21,8 @@ import org.jgrapht.graph.DirectedAcyclicGraph;
 import OBOReader.DagBuilder;
 import OBOReader.Term;
 import OBOReader.Terms;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class Reader {
 	private BufferedReader in;
@@ -60,7 +62,7 @@ public class Reader {
 		//findRootOfDag(annotDagBP);
 		//System.out.println(findCommonAncestor("GO:0051252","GO:0045935").getID());
 		System.out.println("WuPalmer Similarity for GO:0050779 and GO:0019219 :  "+WuPalmerSim("GO:0050779", "GO:0019219"));
-		System.out.println("Resnik Similarity for GO:0050779 and GO:0019219 :  "+ResnikSim("GO:0050779", "GO:0019219"));
+		System.out.println("Resnik Similarity for GO:0050779 and GO:0008270 :  "+ResnikSim("GO:0050779", "GO:0008270"));
 		System.out.println("DekangLin Similarity for GO:0050779 and GO:0019219 :  "+DekangLinSim("GO:0050779", "GO:0019219"));
 		System.out.println("JiangConrathSim Similarity for GO:0050779 and GO:0019219 :  "+JiangConrathSim("GO:0050779", "GO:0019219"));
 		System.out.println("Root of BP DAG has these genes associated to it: "+findRootOfDag(annotDagBP).getGeneList());
@@ -93,6 +95,13 @@ public class Reader {
         }
 
     }  
+	
+	public ObservableList<String> getTerms(){
+		//ArrayList<String> elems = new ArrayList<String>();
+		ObservableList<String> result = FXCollections.observableArrayList();
+		termMap.entrySet().forEach(e -> result.add(e.getKey().getID()));	
+		return result;
+	}
 	
 	/**
 	 * To get the next line of the source file
