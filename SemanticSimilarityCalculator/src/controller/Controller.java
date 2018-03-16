@@ -78,7 +78,7 @@ public class Controller {
     @FXML
     private ComboBox<String> TermOrGene1;
     @FXML
-    private ComboBox TermOrGene2;
+    private ComboBox<String> TermOrGene2;
     @FXML
     private ComboBox<String> organism;
     @FXML
@@ -94,11 +94,15 @@ public class Controller {
     @FXML
     private void buildListOfItems(ActionEvent event) throws IOException{
         String selected = organism.getSelectionModel().getSelectedItem().toString();       
+        selected.substring(0, selected.length() - 3);
+        selected = selected+".txt";
         String location = dir+"\\"+selected;
         if(Files.isRegularFile(Paths.get(location))) {
             createAlert("File exists on system, using the old file to build the DAG.");
-            gunzipIt(selected,location);
-            annotReader = new Reader(selected,getSelectedECodes());
+            System.out.println("selected: "+selected);
+            //getSelectedECodes().forEach( x -> System.out.println(x));
+            
+            annotReader.updateReader(selected, getSelectedECodes());
             
         } else {
             createAlert("Annotation file not found, download it first!");
@@ -107,29 +111,32 @@ public class Controller {
     
     @FXML
     private void downloadAndBuildListofItems(ActionEvent event) throws IOException{
-    	String selected = organism.getSelectionModel().getSelectedItem().toString();       
-        String location = dir+"\\"+selected;
+    	String selectedgz = organism.getSelectionModel().getSelectedItem().toString();       
+        String selectedtxt = selectedgz;
+    	selectedtxt.substring(0, selectedtxt.length() - 3);
+        selectedtxt = selectedtxt+".txt";
+        String location = dir+"\\"+selectedgz;
         if(Files.isRegularFile(Paths.get(location))) {
             createAlert("Overwriting existing file.");    
         } else {
             createAlert("Downloading file to user directory.");   
         }
-        FileDownloader(selected);
-        gunzipIt(selected,location);
-        annotReader = new Reader(selected,getSelectedECodes());
+        FileDownloader(selectedgz);
+        gunzipIt(selectedgz,location);
+        //annotReader = new Reader(selected,getSelectedECodes());
     }
     
     
     public void FileDownloader(String selected)throws IOException{
     	String urls = "http://geneontology.org/gene-associations/"+selected;
-        URL url = verify(urls);
+    	URL url = verify(urls);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         InputStream in = null;
         String filename = url.getFile();
         filename = filename.substring(filename.lastIndexOf('/') + 1);
         String path = new File(".").getAbsolutePath();
         path = path.substring(0, path.length() - 2);
-        System.out.println(path);
+        //System.out.println(path);
         FileOutputStream out = new FileOutputStream(path + File.separator + filename);
         in = connection.getInputStream();
         int read = -1;
@@ -162,27 +169,17 @@ public class Controller {
     private void gunzipIt(String fileName, String location) throws IOException{
 
         byte[] buffer = new byte[1024];
-        GZIPInputStream gzis = null;
-        FileOutputStream out = null;
-        try{
-            gzis = new GZIPInputStream(new FileInputStream(location));
-            System.out.print("fileName: "+fileName);
-            System.out.print("location: "+location);
-
-            out =  new FileOutputStream("C:\\Users\\Attila\\Documents\\NetBeansProjects\\SemanticSimilarityCalculator\\SemanticSimilarityCalculator\\"+fileName+".txt");
-
-            int len;
-            while ((len = gzis.read(buffer)) > 0) {
-                   out.write(buffer, 0, len);
-            }
-            System.out.println("File converted!");
-
-        }catch(IOException ex){
-            ex.printStackTrace();
-        } finally {
-            gzis.close();
-            out.close();
+        GZIPInputStream gzin = null;
+        FileOutputStream txtout = null;
+        gzin = new GZIPInputStream(new FileInputStream(location));
+        txtout =  new FileOutputStream(dir+"\\"+fileName+".txt");
+        int len;
+        while ((len = gzin.read(buffer)) > 0) {
+               txtout.write(buffer, 0, len);
         }
+        System.out.println("File converted!");      
+        gzin.close();
+        txtout.close();
     }
     
     private void createAlert(String message){

@@ -67,7 +67,7 @@ public class Reader {
 		System.out.println("The term GO:0050779 has these genes associated to it: "+dags.getTerms().get("GO:0050779").getGeneList());
 	}
 	
-	public Reader(String fileName, HashSet<String> selectedCodes){
+	public void updateReader(String fileName, HashSet<String> selectedCodes){
         in=null;
         buffer = null;
         this.annotDagBP = new DirectedAcyclicGraph<>(DefaultEdge.class);
@@ -120,7 +120,7 @@ public class Reader {
 		if (fileName.equals("E.Coli(local)")){
             annFile = new File(cl.getResource("./AnnotationFiles/E.Coli(local)").getFile());
         } else {
-            System.out.println(System.getProperty("user.dir")+"\\"+fileName);
+            //System.out.println("checking "+System.getProperty("user.dir")+"\\"+fileName);
             annFile = new File(System.getProperty("user.dir")+"\\"+fileName);
         }
 		FileReader fr = new FileReader(annFile);
