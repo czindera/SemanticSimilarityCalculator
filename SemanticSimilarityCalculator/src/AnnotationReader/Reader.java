@@ -88,7 +88,7 @@ public class Reader {
 	 */
 	private void parse(HashSet<String> filters) throws IOException {
 		ClassLoader cl = getClass().getClassLoader();
-		File annFile = new File(cl.getResource("./AnnotationFiles/gene_association.ecocyc").getFile());
+		File annFile = new File(cl.getResource("./AnnotationFiles/E.Coli(local)").getFile());
 	    FileReader fr = new FileReader(annFile);
 		in=new BufferedReader(fr);
 		String line;
@@ -105,7 +105,7 @@ public class Reader {
 						Term thisTerm = allTerms.get(goID);
 						if (filters.contains(eCode)){
 							if (!thisTerm.addGene(gene)) {
-								System.out.println("Gene already exists in the Set.");
+								//System.out.println("Gene already exists in the Set.");
 							}
 							this.termMap.put(thisTerm, thisDag.getAncestors(thisTerm));
 						}
@@ -178,7 +178,7 @@ public class Reader {
 		for(Term t : dag.vertexSet()){
 			for(Term ancestor : dag.getAncestors(t)){
 				if (!ancestor.addGenes(t.getGeneList())){
-					System.out.println("Gene Set was not modified for term "+ancestor.getID());
+					//System.out.println("Gene Set was not modified for term "+ancestor.getID());
 				}
 			}
 		}

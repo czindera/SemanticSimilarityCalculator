@@ -1,14 +1,36 @@
-package OBOReader;
+package controller;
 
+
+import java.io.IOException;
 
 import AnnotationReader.Reader;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 
 /**
  * @author zbvd935
  *
  */
-public class Main {
+public class Main extends Application{
+	
+	public void start (Stage primaryStage){
+        try {
+            Parent root;
+            root = FXMLLoader.load(getClass().getResource("Gui.fxml"));
+
+            Scene scene = new Scene(root,600,700);
+            scene.getStylesheets().add("./Controller/application.css");
+            primaryStage.setScene(scene);
+            primaryStage.show();
+         
+        } catch(IOException e) {
+                e.printStackTrace();
+        }
+    }
 
 	
 	
@@ -17,7 +39,7 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 		Reader notationReader = new Reader();
-		//launch(args);
+		launch(args);
 		
 		/*String input = null;
 		boolean function = true;
