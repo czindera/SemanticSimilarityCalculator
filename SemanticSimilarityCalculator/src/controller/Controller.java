@@ -44,14 +44,19 @@ public class Controller {
     Reader annotReader;
     
     ObservableList<String> organismList;
+    ObservableList<String> termListBP;
+    ObservableList<String> geneListBP;
     
     public Controller(){
         annotReader = new Reader();
     	this.geneAssocSet = new LinkedHashSet<>();
         geneAssocSet.add("E.Coli(local)");
-        organismList = FXCollections.observableArrayList(geneAssocSet);
-        dir = System.getProperty("user.dir");
-        //System.out.println(dir);   
+        this.organismList = FXCollections.observableArrayList(geneAssocSet);
+        this.termListBP = FXCollections.observableArrayList(annotReader.getBPterms());
+        //this.geneListBP = ;
+        
+        
+        dir = System.getProperty("user.dir");  
     }
     
     /**
@@ -101,10 +106,11 @@ public class Controller {
         
         if (selected.equals("E.Coli(local)")){
         	annotReader.updateReader("E.Coli(local)", getSelectedECodes());
-            ObservableList<String> elements = FXCollections.observableArrayList("TEST");
-            TermOrGene1.setItems(elements);
+            //ObservableList<String> elements = FXCollections.observableArrayList("TEST");
+        	termListBP = FXCollections.observableArrayList(annotReader.getBPterms());
+        	TermOrGene1.setItems(termListBP);
             TextFields.bindAutoCompletion(TermOrGene1.getEditor(), TermOrGene1.getItems());
-            TermOrGene2.setItems(elements);
+            TermOrGene2.setItems(termListBP);
             TextFields.bindAutoCompletion(TermOrGene2.getEditor(), TermOrGene2.getItems());
         } else{
         	if(Files.isRegularFile(Paths.get(location))) {
@@ -113,10 +119,11 @@ public class Controller {
                 //getSelectedECodes().forEach( x -> System.out.println(x));
                 
                 annotReader.updateReader(selectedtxt, getSelectedECodes());
-                ObservableList<String> elements = FXCollections.observableArrayList("TEST");
-                TermOrGene1.setItems(elements);
+                termListBP = FXCollections.observableArrayList(annotReader.getBPterms());
+                //ObservableList<String> elements = FXCollections.observableArrayList("TEST");
+                TermOrGene1.setItems(termListBP);
                 TextFields.bindAutoCompletion(TermOrGene1.getEditor(), TermOrGene1.getItems());
-                TermOrGene2.setItems(elements);
+                TermOrGene2.setItems(termListBP);
                 TextFields.bindAutoCompletion(TermOrGene2.getEditor(), TermOrGene2.getItems());
                 
             } else {
@@ -143,10 +150,11 @@ public class Controller {
         FileDownloader(selectedgz);
         gunzipIt(selectedgz,location);
         annotReader.updateReader(selectedtxt, getSelectedECodes());
-        ObservableList<String> elements = FXCollections.observableArrayList("TEST");
-        TermOrGene1.setItems(elements);
+        //ObservableList<String> elements = FXCollections.observableArrayList("TEST");
+        termListBP = FXCollections.observableArrayList(annotReader.getBPterms());
+        TermOrGene1.setItems(termListBP);
         TextFields.bindAutoCompletion(TermOrGene1.getEditor(), TermOrGene1.getItems());
-        TermOrGene2.setItems(elements);
+        TermOrGene2.setItems(termListBP);
         TextFields.bindAutoCompletion(TermOrGene2.getEditor(), TermOrGene2.getItems());
         //annotReader = new Reader(selected,getSelectedECodes());
     }

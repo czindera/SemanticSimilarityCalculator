@@ -67,6 +67,14 @@ public class Reader {
 		System.out.println("The term GO:0050779 has these genes associated to it: "+dags.getTerms().get("GO:0050779").getGeneList());
 	}
 	
+	public HashSet<String> getBPterms(){
+		HashSet<String> result = new HashSet<>();
+		for (Term t : annotDagBP.vertexSet()){
+			result.add(t.getID());
+		}
+		return result;
+	}
+	
 	public void updateReader(String fileName, HashSet<String> selectedCodes){
         in=null;
         buffer = null;
