@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,8 +31,11 @@ public class Reader {
 	private DagBuilder dags;
 	private HashSet<String> initSet;
 	private HashSet<String> geneList;
+	private final static Logger LOGGER = Logger.getLogger(Reader.class.getName());
+	
 	
 	public Reader(){
+		//LOGGER.addHandler(new ConsoleHandler());
 		in=null;
 		buffer = null;
 		this.annotDagBP = new DirectedAcyclicGraph<>(DefaultEdge.class);
@@ -56,20 +60,21 @@ public class Reader {
 			e.printStackTrace();
 		}
 		
-		System.out.println("Uppropagation finished!");
+		LOGGER.info("Uppropagation finished!");
 		//printEdges(annotDagBP);
 		//listAncestors("GO:0050779");
 		//findRootOfDag(annotDagBP);
 		//System.out.println(findCommonAncestor("GO:0051252","GO:0045935").getID());
-		System.out.println("WuPalmer Similarity for GO:0050779 and GO:0019219 :  "+WuPalmerSim("GO:0050779", "GO:0019219"));
-		System.out.println("Resnik Similarity for GO:0050779 and GO:0019219 :  "+ResnikSim("GO:0050779", "GO:0019219"));
-		System.out.println("DekangLin Similarity for GO:0050779 and GO:0019219 :  "+DekangLinSim("GO:0050779", "GO:0019219"));
-		System.out.println("JiangConrathSim Similarity for GO:0050779 and GO:0019219 :  "+JiangConrathSim("GO:0050779", "GO:0019219"));
-		System.out.println("Root of BP DAG has these genes associated to it: "+findRootOfDag(annotDagBP).getGeneList());
-		System.out.println("Root of CC DAG has these genes associated to it: "+findRootOfDag(annotDagCC).getGeneList());
-		System.out.println("Root of MF DAG has these genes associated to it: "+findRootOfDag(annotDagMF).getGeneList());
-
-		System.out.println("The term GO:0050779 has these genes associated to it: "+dags.getTerms().get("GO:0050779").getGeneList());
+		LOGGER.info("WuPalmer Similarity for GO:0050779 and GO:0019219 :  "+WuPalmerSim("GO:0050779", "GO:0019219"));
+		LOGGER.info("Resnik Similarity for GO:0050779 and GO:0019219 :  "+ResnikSim("GO:0050779", "GO:0019219"));
+		LOGGER.info("DekangLin Similarity for GO:0050779 and GO:0019219 :  "+DekangLinSim("GO:0050779", "GO:0019219"));
+		LOGGER.info("JiangConrathSim Similarity for GO:0050779 and GO:0019219 :  "+JiangConrathSim("GO:0050779", "GO:0019219"));
+		LOGGER.info("Root of BP DAG has these genes associated to it: "+findRootOfDag(annotDagBP).getGeneList());
+		LOGGER.info("Root of CC DAG has these genes associated to it: "+findRootOfDag(annotDagCC).getGeneList());
+		LOGGER.info("Root of MF DAG has these genes associated to it: "+findRootOfDag(annotDagMF).getGeneList());
+		
+		//LOGGER.info("Logger info messsage.");
+		//System.out.println("The term GO:0050779 has these genes associated to it: "+dags.getTerms().get("GO:0050779").getGeneList());
 	}
 	
 	public HashSet<String> getGeneList(){
@@ -109,7 +114,7 @@ public class Reader {
         this.termMap = new HashMap<>();
         //this.dags = new DagBuilder();
         try {
-                
+                LOGGER.info("Rebuilding and propagating DAGs.");
                 parse(selectedCodes,fileName);
                 dagBuilder();
                 
@@ -121,9 +126,9 @@ public class Reader {
                 calculateIC(annotDagBP);
                 calculateIC(annotDagMF);
                 calculateIC(annotDagCC);
-                System.out.println("Root of BP DAG has these genes associated to it: "+findRootOfDag(annotDagBP).getGeneList());
-        		System.out.println("Root of CC DAG has these genes associated to it: "+findRootOfDag(annotDagCC).getGeneList());
-        		System.out.println("Root of MF DAG has these genes associated to it: "+findRootOfDag(annotDagMF).getGeneList());
+                LOGGER.info("Root of BP DAG has these genes associated to it: "+findRootOfDag(annotDagBP).getGeneList());
+                LOGGER.info("Root of CC DAG has these genes associated to it: "+findRootOfDag(annotDagCC).getGeneList());
+                LOGGER.info("Root of MF DAG has these genes associated to it: "+findRootOfDag(annotDagMF).getGeneList());
 
         } catch (IOException e) {
                 e.printStackTrace();

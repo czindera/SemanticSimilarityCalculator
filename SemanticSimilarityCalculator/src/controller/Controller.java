@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 
 import javafx.collections.FXCollections;
@@ -42,7 +43,7 @@ public class Controller {
     LinkedHashSet<String> geneAssocSet;
     final String dir;
     Reader annotReader;
-    
+    private final static Logger LOGGER = Logger.getLogger(Controller.class.getName());
     ObservableList<String> organismList;
     ObservableList<String> termListBP;
     ObservableList<String> termListMF;
@@ -173,8 +174,8 @@ public class Controller {
         	initAndUpdateAllCombobox();
         } else{
         	if(Files.isRegularFile(Paths.get(location))) {
-                createAlert("File exists on system, using the old file to build the DAG.");
-                System.out.println("selected: "+selected);
+                createAlert("File exists on system, using the "+selected+" file to build the DAG.");
+                //System.out.println("selected: "+selected);
                 //getSelectedECodes().forEach( x -> System.out.println(x));
                 
                 annotReader.updateReader(selectedtxt, getSelectedECodes());
@@ -225,11 +226,11 @@ public class Controller {
         while((read = in.read(buffer)) != -1){
             out.write(buffer, 0, read);
             
-            System.out.println("[SYSTEM/INFO]: Downloading file...");
+            LOGGER.info("[SYSTEM/INFO]: Downloading file...");
         }
         in.close();
         out.close();
-        System.out.println("[SYSTEM/INFO]: File Downloaded!");
+        LOGGER.info("[SYSTEM/INFO]: File Downloaded!");
     }
         
     
@@ -259,7 +260,7 @@ public class Controller {
         while ((len = gzin.read(buffer)) > 0) {
                txtout.write(buffer, 0, len);
         }
-        System.out.println("File converted!");      
+        LOGGER.info("File converted!");      
         gzin.close();
         txtout.close();
     }
