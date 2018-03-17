@@ -26,6 +26,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 import org.controlsfx.control.textfield.TextFields;
 import org.jsoup.Jsoup;
@@ -55,9 +56,6 @@ public class Controller {
     	this.geneAssocSet = new LinkedHashSet<>();
         geneAssocSet.add("E.Coli(local)");
         this.organismList = FXCollections.observableArrayList(geneAssocSet);
-        //this.termListBP = FXCollections.observableArrayList(annotReader.getBPterms());
-        //this.geneListBP = ;
-        
         
         dir = System.getProperty("user.dir");  
     }
@@ -103,12 +101,22 @@ public class Controller {
     private ComboBox<String> genes1;
     @FXML
     private ComboBox<String> genes2;
+    @FXML
+    private Label resultLabel;
     
     @FXML
     private void updateList(ActionEvent event){
         updateOrganismList();
         organism.setItems(organismList);
         organism.setValue("gene_association.ecocyc.gz");
+    }
+    
+    @FXML
+    private void calculate(){
+    	String term1 = bpTerms1.getSelectionModel().getSelectedItem();
+    	String term2 = bpTerms2.getSelectionModel().getSelectedItem();
+    	String result = String.valueOf(annotReader.ResnikSim(term1, term2));
+    	resultLabel.setText(result);
     }
     
     @FXML
@@ -317,6 +325,7 @@ public class Controller {
         genes2.setEditable(true);
         genes1.setVisible(false);
     	genes2.setVisible(false);
+    	resultLabel.setText("Start comparing Terms or Genes.");
     }
     
     @FXML

@@ -57,5 +57,7 @@
       <ComboBox fx:id="ccTerms2" layoutX="334.0" layoutY="439.0" prefHeight="25.0" prefWidth="221.0" />
       <ComboBox fx:id="genes1" layoutX="38.0" layoutY="300.0" prefHeight="25.0" prefWidth="221.0" />
       <ComboBox fx:id="genes2" layoutX="333.0" layoutY="300.0" prefHeight="25.0" prefWidth="221.0" />
+      <Button layoutX="255.0" layoutY="479.0" mnemonicParsing="false" onAction="#calculate" prefHeight="25.0" prefWidth="79.0" text="Calculate" />
+      <Label fx:id="resultLabel" layoutX="46.0" layoutY="534.0" prefHeight="121.0" prefWidth="507.0" text="Label" />
    </children>
 </AnchorPane>
