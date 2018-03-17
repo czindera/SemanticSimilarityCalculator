@@ -314,7 +314,7 @@ public class Controller {
         organism.setEditable(true);
         TextFields.bindAutoCompletion(organism.getEditor(), organism.getItems());
         organism.setValue("E.Coli(local)");
-        
+        initAndUpdateAllCombobox();
         bpTerms1.setEditable(true);
         bpTerms2.setEditable(true);
         ccTerms1.setEditable(true);

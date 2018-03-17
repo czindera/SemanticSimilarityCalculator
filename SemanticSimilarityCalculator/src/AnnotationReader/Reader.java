@@ -167,7 +167,6 @@ public class Reader {
 		if (fileName.equals("E.Coli(local)")){
             annFile = new File(cl.getResource("./AnnotationFiles/E.Coli(local)").getFile());
         } else {
-            //System.out.println("checking "+System.getProperty("user.dir")+"\\"+fileName);
             annFile = new File(System.getProperty("user.dir")+"\\"+fileName);
         }
 		FileReader fr = new FileReader(annFile);
@@ -177,7 +176,7 @@ public class Reader {
 			if(!line.startsWith("!")) {
 				String[] words = line.split("\\s+");
 				String goID = words[3];
-				String gene = words[1];
+				String gene = words[1]+"-"+words[2];
 				geneList.add(gene);
 				String eCode = words[5];
 				Terms allTerms = this.dags.getTerms();
