@@ -38,22 +38,24 @@
       <CheckBox fx:id="IC" layoutX="481.0" layoutY="157.0" mnemonicParsing="false" text="IC" />
       <CheckBox fx:id="ND" layoutX="529.0" layoutY="157.0" mnemonicParsing="false" text="ND" />
       <CheckBox fx:id="IEA" layoutX="395.0" layoutY="164.0" mnemonicParsing="false" text="IEA" />
-      <RadioButton layoutX="28.0" layoutY="236.0" mnemonicParsing="false" selected="true" text="Term-wise calculation">
+      <RadioButton layoutX="28.0" layoutY="236.0" mnemonicParsing="false" onAction="#setTermOperation" selected="true" text="Term-wise calculation">
          <toggleGroup>
             <ToggleGroup fx:id="termorgene" />
          </toggleGroup>
       </RadioButton>
-      <RadioButton layoutX="28.0" layoutY="260.0" mnemonicParsing="false" text="Gene-wise calculation" toggleGroup="$termorgene" />
+      <RadioButton layoutX="28.0" layoutY="260.0" mnemonicParsing="false" onAction="#setGeneOperation" text="Gene-wise calculation" toggleGroup="$termorgene" />
       <Text layoutX="207.0" layoutY="241.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Select similarity method" />
       <ChoiceBox fx:id="simMethod" layoutX="206.0" layoutY="248.0" prefWidth="150.0" />
       <Button layoutX="348.0" layoutY="48.0" mnemonicParsing="false" onAction="#updateList" text="Update" />
       <ComboBox fx:id="bpTerms1" layoutX="38.0" layoutY="325.0" prefHeight="25.0" prefWidth="221.0" />
       <ComboBox fx:id="bpTerms2" layoutX="334.0" layoutY="325.0" prefHeight="25.0" prefWidth="221.0" />
-      <Button layoutX="443.0" layoutY="236.0" mnemonicParsing="false" onAction="#buildListOfItems" text="Build DAGs" />
-      <Button layoutX="408.0" layoutY="273.0" mnemonicParsing="false" onAction="#downloadAndBuildListofItems" text="Download &amp; Build DAGs" />
+      <Button layoutX="439.0" layoutY="216.0" mnemonicParsing="false" onAction="#buildListOfItems" text="Build DAGs" />
+      <Button layoutX="408.0" layoutY="256.0" mnemonicParsing="false" onAction="#downloadAndBuildListofItems" text="Download &amp; Build DAGs" />
       <ComboBox fx:id="mfTerms1" layoutX="37.0" layoutY="380.0" prefHeight="25.0" prefWidth="221.0" />
       <ComboBox fx:id="mfTerms2" layoutX="334.0" layoutY="380.0" prefHeight="25.0" prefWidth="221.0" />
       <ComboBox fx:id="ccTerms1" layoutX="37.0" layoutY="439.0" prefHeight="25.0" prefWidth="221.0" />
       <ComboBox fx:id="ccTerms2" layoutX="334.0" layoutY="439.0" prefHeight="25.0" prefWidth="221.0" />
+      <ComboBox fx:id="genes1" layoutX="38.0" layoutY="300.0" prefHeight="25.0" prefWidth="221.0" />
+      <ComboBox fx:id="genes2" layoutX="333.0" layoutY="300.0" prefHeight="25.0" prefWidth="221.0" />
    </children>
 </AnchorPane>

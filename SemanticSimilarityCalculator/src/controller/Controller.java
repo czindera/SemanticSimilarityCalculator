@@ -56,7 +56,7 @@ public class Controller {
     	this.geneAssocSet = new LinkedHashSet<>();
         geneAssocSet.add("E.Coli(local)");
         this.organismList = FXCollections.observableArrayList(geneAssocSet);
-        this.termListBP = FXCollections.observableArrayList(annotReader.getBPterms());
+        //this.termListBP = FXCollections.observableArrayList(annotReader.getBPterms());
         //this.geneListBP = ;
         
         
@@ -100,12 +100,40 @@ public class Controller {
     private ComboBox<String> organism;
     @FXML
     private ChoiceBox<String> simMethod;
+    @FXML
+    private ComboBox<String> genes1;
+    @FXML
+    private ComboBox<String> genes2;
     
     @FXML
     private void updateList(ActionEvent event){
         updateOrganismList();
         organism.setItems(organismList);
         organism.setValue("gene_association.ecocyc.gz");
+    }
+    
+    @FXML
+    private void setGeneOperation(ActionEvent event){
+    	bpTerms1.setVisible(false);
+    	bpTerms2.setVisible(false);
+    	mfTerms1.setVisible(false);
+    	mfTerms2.setVisible(false);
+    	ccTerms1.setVisible(false);
+    	ccTerms2.setVisible(false);
+    	genes1.setVisible(true);
+    	genes2.setVisible(true);
+    }
+    
+    @FXML
+    private void setTermOperation(ActionEvent event){
+    	bpTerms1.setVisible(true);
+    	bpTerms2.setVisible(true);
+    	mfTerms1.setVisible(true);
+    	mfTerms2.setVisible(true);
+    	ccTerms1.setVisible(true);
+    	ccTerms2.setVisible(true);
+    	genes1.setVisible(false);
+    	genes2.setVisible(false);
     }
     
     private void initAndUpdateAllCombobox(){
@@ -192,6 +220,7 @@ public class Controller {
         byte[] buffer = new byte[4096];
         while((read = in.read(buffer)) != -1){
             out.write(buffer, 0, read);
+            
             System.out.println("[SYSTEM/INFO]: Downloading file...");
         }
         in.close();
@@ -279,6 +308,8 @@ public class Controller {
         ccTerms2.setEditable(true);
         mfTerms1.setEditable(true);
         mfTerms2.setEditable(true);
+        genes1.setVisible(false);
+    	genes2.setVisible(false);
     }
     
     @FXML
