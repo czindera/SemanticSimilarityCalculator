@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,6 +23,7 @@ import org.jgrapht.graph.DirectedAcyclicGraph;
 import OBOReader.DagBuilder;
 import OBOReader.Term;
 import OBOReader.Terms;
+import controller.MyFormatter;
 
 public class Reader {
 	private BufferedReader in;
@@ -35,7 +37,10 @@ public class Reader {
 	
 	
 	public Reader(){
-		//LOGGER.addHandler(new ConsoleHandler());
+		LOGGER.setUseParentHandlers(false);
+		ConsoleHandler handler = new ConsoleHandler();
+		handler.setFormatter(new MyFormatter());
+		LOGGER.addHandler(handler);
 		in=null;
 		buffer = null;
 		this.annotDagBP = new DirectedAcyclicGraph<>(DefaultEdge.class);

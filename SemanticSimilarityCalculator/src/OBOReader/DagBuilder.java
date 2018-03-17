@@ -5,9 +5,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
+
 
 
 public class DagBuilder {
@@ -15,6 +17,7 @@ public class DagBuilder {
 	private String buffer;
 	private DirectedAcyclicGraph<Term, DefaultEdge> dagBP,dagMF,dagCC;
 	private Terms terms;
+	private final static Logger LOGGER = Logger.getLogger(DagBuilder.class.getName());
 	//private DefaultEdge is_a;
 
 	public DagBuilder() {
@@ -217,7 +220,7 @@ public class DagBuilder {
 		}
 		in2.close();
 		fr2.close();
-		System.out.println("Finished Building DAGs!");
+		LOGGER.info("Finished Building DAGs!");
 		
 	}
 	
