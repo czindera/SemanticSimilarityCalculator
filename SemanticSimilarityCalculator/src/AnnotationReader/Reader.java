@@ -29,6 +29,7 @@ public class Reader {
 	private Map<Term,Set<Term>> termMap;
 	private DagBuilder dags;
 	private HashSet<String> initSet;
+	private HashSet<String> geneList;
 	
 	public Reader(){
 		in=null;
@@ -38,6 +39,7 @@ public class Reader {
 		this.annotDagCC = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		this.termMap = new HashMap<Term,Set<Term>>();
 		this.dags = new DagBuilder();
+		this.geneList = new HashSet<>();
 		try {
 			initSet = Stream.of("EXP", "IDA","IPI","IMP","IGI","IEP").collect(Collectors.toCollection(HashSet::new));
 			parse(initSet,"E.Coli(local)");
@@ -68,6 +70,10 @@ public class Reader {
 		System.out.println("Root of MF DAG has these genes associated to it: "+findRootOfDag(annotDagMF).getGeneList());
 
 		System.out.println("The term GO:0050779 has these genes associated to it: "+dags.getTerms().get("GO:0050779").getGeneList());
+	}
+	
+	public HashSet<String> getGeneList(){
+		return this.geneList;
 	}
 	
 	public HashSet<String> getBPterms(){
@@ -162,6 +168,7 @@ public class Reader {
 				String[] words = line.split("\\s+");
 				String goID = words[3];
 				String gene = words[1];
+				geneList.add(gene);
 				String eCode = words[5];
 				Terms allTerms = this.dags.getTerms();
 				if (goID.startsWith("GO")){
@@ -184,7 +191,7 @@ public class Reader {
 	}
 	
 	/**
-	 * This method finishes the up propagation by reading the Map and finding relevant Edges
+	 * This method finishes building the annotated DAGs by reading the Map and finding relevant Edges
 	 * @throws CycleFoundException
 	 */
 	private void dagBuilder(){

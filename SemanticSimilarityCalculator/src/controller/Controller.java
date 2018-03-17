@@ -45,11 +45,9 @@ public class Controller {
     
     ObservableList<String> organismList;
     ObservableList<String> termListBP;
-    ObservableList<String> geneListBP;
     ObservableList<String> termListMF;
-    ObservableList<String> geneListMF;
     ObservableList<String> termListCC;
-    ObservableList<String> geneListCC;
+    ObservableList<String> geneList;
     
     public Controller(){
         annotReader = new Reader();
@@ -154,6 +152,12 @@ public class Controller {
         TextFields.bindAutoCompletion(mfTerms1.getEditor(), mfTerms1.getItems());
         mfTerms2.setItems(termListMF);
         TextFields.bindAutoCompletion(mfTerms2.getEditor(), mfTerms2.getItems());
+        
+        geneList = FXCollections.observableArrayList(annotReader.getGeneList());
+        genes1.setItems(geneList);
+        TextFields.bindAutoCompletion(genes1.getEditor(), genes1.getItems());
+        genes2.setItems(geneList);
+        TextFields.bindAutoCompletion(genes2.getEditor(), genes2.getItems());
     }
     
     @FXML
@@ -308,6 +312,8 @@ public class Controller {
         ccTerms2.setEditable(true);
         mfTerms1.setEditable(true);
         mfTerms2.setEditable(true);
+        genes1.setEditable(true);
+        genes2.setEditable(true);
         genes1.setVisible(false);
     	genes2.setVisible(false);
     }
