@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.GraphPath;
-import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
+import org.jgrapht.alg.shortestpath.BidirectionalDijkstraShortestPath;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 
 import com.google.common.collect.HashMultimap;
@@ -74,20 +74,21 @@ public class Reader {
 		//listAncestors("GO:0050779");
 		//findRootOfDag(annotDagBP);
 		//System.out.println(findCommonAncestor("GO:0051252","GO:0045935").getID());
+		
+		LOGGER.info("Root of BP DAG has these genes associated to it: "+findRootOfDag(annotDagBP).getGeneList());
+		LOGGER.info("The term GO:0008150 has these genes associated to it: "+dags.getTerms().get("GO:0008150").getGeneList());
+		//LOGGER.info("Root of CC DAG has these genes associated to it: "+findRootOfDag(annotDagCC).getGeneList());
+		//LOGGER.info("Root of MF DAG has these genes associated to it: "+findRootOfDag(annotDagMF).getGeneList());
+		
 		//LOGGER.info("WuPalmer Similarity for GO:0050779 and GO:0019219 :  "+WuPalmerSim("GO:0050779", "GO:0019219"));
 		LOGGER.info("Resnik Similarity for GO:0050779 and GO:0019219 :  "+ResnikSim("GO:0050779", "GO:0019219"));
 		LOGGER.info("DekangLin Similarity for GO:0050779 and GO:0019219 :  "+DekangLinSim("GO:0050779", "GO:0019219"));
 		LOGGER.info("JiangConrathSim Similarity for GO:0050779 and GO:0019219 :  "+JiangConrathSim("GO:0050779", "GO:0019219"));
-		LOGGER.info("Root of BP DAG has these genes associated to it: "+findRootOfDag(annotDagBP).getGeneList());
-		//LOGGER.info("Root of CC DAG has these genes associated to it: "+findRootOfDag(annotDagCC).getGeneList());
-		//LOGGER.info("Root of MF DAG has these genes associated to it: "+findRootOfDag(annotDagMF).getGeneList());
-		
 		LOGGER.info("simUI similarity for gene P05052-appY and P0AGK4-yhbY : "+simUI("P05052-appY","P0AGK4-yhbY"));
 		LOGGER.info("simGIC similarity for gene P05052-appY and P0AGK4-yhbY : "+simGIC("P05052-appY","P0AGK4-yhbY"));
 		//printIC();
+		findLeavesWithLongestPath();
 		
-		//LOGGER.info("Logger info messsage.");
-		LOGGER.info("The term GO:0008150 has these genes associated to it: "+dags.getTerms().get("GO:0008150").getGeneList());
 	}
 	
 	public void printIC(){
@@ -513,13 +514,13 @@ public class Reader {
 			tempTerm = thisTerm1;
 			targetTerm = thisTerm2;
 		}
-		GraphPath<Term, DefaultEdge> path = new DijkstraShortestPath<Term, DefaultEdge>(thisDag).getPath( targetTerm, tempTerm);
+		GraphPath<Term, DefaultEdge> path = new BidirectionalDijkstraShortestPath<Term, DefaultEdge>(thisDag).getPath( targetTerm, tempTerm);
 		//GraphPath<Term, DefaultEdge> reverse = new DijkstraShortestPath<Term, DefaultEdge>(thisDag).getPath( tempTerm, targetTerm);
 		if(path!=null){
 			LOGGER.info("Shortest path:");
 			printPath(path);
 		}
-		shortestDistance = path.getEdgeList().size();
+		shortestDistance = path.getLength();
 		LOGGER.info("Shortest distance= "+shortestDistance);
 		/*for(DefaultEdge e : path.getEdgeList()){
 			System.out.println(thisDag.getEdgeSource(e).getID()+" --> "+thisDag.getEdgeTarget(e).getID());
@@ -567,6 +568,25 @@ public class Reader {
 			}
 		}
 		return MICA;
+	}
+	
+	private void findLeavesWithLongestPath(){
+		//Term furthestTerm;
+		int pathLength = 0;
+		for (Term t : annotDagBP.vertexSet()){		
+			if (annotDagBP.getDescendants(t).isEmpty()){
+				GraphPath<Term, DefaultEdge> path = new BidirectionalDijkstraShortestPath<Term, DefaultEdge>(annotDagBP).getPath( findRootOfDag(annotDagBP), t );
+				if (path != null){
+					int distanceFromRoot = path.getLength();
+					if (distanceFromRoot>=pathLength){
+						//furthestTerm = t;
+						pathLength = distanceFromRoot;
+						LOGGER.info("new longest has been found: "+t.getID()+" with pathlength "+pathLength);
+					}
+				}
+					
+			}
+		}
 	}
 	
 	/**
