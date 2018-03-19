@@ -27,6 +27,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.layout.Region;
 import org.controlsfx.control.textfield.TextFields;
 import org.jsoup.Jsoup;
@@ -103,7 +104,8 @@ public class Controller {
     private ComboBox<String> genes2;
     @FXML
     private Label resultLabel;
-    
+    @FXML
+    private RadioButton termwise;
     @FXML
     private void updateList(ActionEvent event){
         updateOrganismList();
@@ -113,48 +115,79 @@ public class Controller {
     
     @FXML
     private void calculate(){
-    	String bpterm1 = bpTerms1.getSelectionModel().getSelectedItem();
-    	String bpterm2 = bpTerms2.getSelectionModel().getSelectedItem();
-    	String ccterm1 = ccTerms1.getSelectionModel().getSelectedItem();
-    	String ccterm2 = ccTerms2.getSelectionModel().getSelectedItem();
-    	String mfterm1 = mfTerms1.getSelectionModel().getSelectedItem();
-    	String mfterm2 = mfTerms2.getSelectionModel().getSelectedItem();
-    	String bpresult="",mfresult="",ccresult="";
-    	switch (simMethod.getSelectionModel().getSelectedIndex()){
-    		case 0: 
-    			bpresult = String.valueOf(annotReader.ResnikSim(bpterm1, bpterm2));
-    	    	mfresult = String.valueOf(annotReader.ResnikSim(mfterm1, mfterm2));
-    	    	ccresult = String.valueOf(annotReader.ResnikSim(ccterm1, ccterm2));
-    	    	break;
-    		case 1:
-    			bpresult = String.valueOf(annotReader.DekangLinSim(bpterm1, bpterm2));
-    	    	mfresult = String.valueOf(annotReader.DekangLinSim(mfterm1, mfterm2));
-    	    	ccresult = String.valueOf(annotReader.DekangLinSim(ccterm1, ccterm2));
-    			break;
-    		case 2:
-    			bpresult = String.valueOf(annotReader.JiangConrathSim(bpterm1, bpterm2));
-    	    	mfresult = String.valueOf(annotReader.JiangConrathSim(mfterm1, mfterm2));
-    	    	ccresult = String.valueOf(annotReader.JiangConrathSim(ccterm1, ccterm2));
-    			break;
-    		case 3:
-    			//SimgraSM
-    			break;
-    		case 4:
-    			//simUI
-    			break;
-    		case 5:
-    			//simGIC
-    			break;
-    		default:
-    			bpresult = String.valueOf(annotReader.ResnikSim(bpterm1, bpterm2));
-    	    	mfresult = String.valueOf(annotReader.ResnikSim(mfterm1, mfterm2));
-    	    	ccresult = String.valueOf(annotReader.ResnikSim(ccterm1, ccterm2));
-    	    	break;
+    	boolean termCalculation = termwise.isSelected();
+    	if (termCalculation){
+			String bpterm1 = bpTerms1.getSelectionModel().getSelectedItem();
+			String bpterm2 = bpTerms2.getSelectionModel().getSelectedItem();
+			String ccterm1 = ccTerms1.getSelectionModel().getSelectedItem();
+			String ccterm2 = ccTerms2.getSelectionModel().getSelectedItem();
+			String mfterm1 = mfTerms1.getSelectionModel().getSelectedItem();
+			String mfterm2 = mfTerms2.getSelectionModel().getSelectedItem();
+			String bpresult="",mfresult="",ccresult="";
+			switch (simMethod.getSelectionModel().getSelectedIndex()){
+				case 0: 
+					bpresult = String.valueOf(annotReader.ResnikSim(bpterm1, bpterm2));
+			    	mfresult = String.valueOf(annotReader.ResnikSim(mfterm1, mfterm2));
+			    	ccresult = String.valueOf(annotReader.ResnikSim(ccterm1, ccterm2));
+			    	break;
+				case 1:
+					bpresult = String.valueOf(annotReader.DekangLinSim(bpterm1, bpterm2));
+			    	mfresult = String.valueOf(annotReader.DekangLinSim(mfterm1, mfterm2));
+			    	ccresult = String.valueOf(annotReader.DekangLinSim(ccterm1, ccterm2));
+					break;
+				case 2:
+					bpresult = String.valueOf(annotReader.JiangConrathSim(bpterm1, bpterm2));
+			    	mfresult = String.valueOf(annotReader.JiangConrathSim(mfterm1, mfterm2));
+			    	ccresult = String.valueOf(annotReader.JiangConrathSim(ccterm1, ccterm2));
+					break;
+				case 3:
+					//SimgraSM
+					break;
+				case 4:
+					//simUI
+					break;
+				case 5:
+					//simGIC
+					break;
+				default:
+					bpresult = String.valueOf(annotReader.ResnikSim(bpterm1, bpterm2));
+			    	mfresult = String.valueOf(annotReader.ResnikSim(mfterm1, mfterm2));
+			    	ccresult = String.valueOf(annotReader.ResnikSim(ccterm1, ccterm2));
+			    	break;
+			}
+			String result = "The selected (BP) terms have a similarity value of: "+bpresult+"\n";
+			result += "The selected (MF) terms have a similarity value of: "+mfresult+"\n";
+			result += "The selected (CC) terms have a similarity value of: "+ccresult+"\n";
+			resultLabel.setText(result);
+    	
+    	} else {
+    		String selectedGene1 = genes1.getSelectionModel().getSelectedItem();
+    		String selectedGene2 = genes2.getSelectionModel().getSelectedItem();
+    		String result ="";
+    		switch (simMethod.getSelectionModel().getSelectedIndex()){
+    			case 0:
+    				//Resnik
+    				break;
+    			case 1:
+    				//Lin
+    				break;
+    			case 2:
+    				//Jiang
+    				break;
+    			case 3:
+    				//simgraSM
+    				break;
+    			case 4:
+					result = "Selected genes simUI value: "+annotReader.simUI(selectedGene1,selectedGene2);
+					break;
+				case 5:
+					//simGIC
+					break;
+				default:
+					break;
+    		}
+    		resultLabel.setText(result);
     	}
-    	String result = "The selected (BP) terms have a similarity value of: "+bpresult+"\n";
-    	result += "The selected (MF) terms have a similarity value of: "+mfresult+"\n";
-    	result += "The selected (CC) terms have a similarity value of: "+ccresult+"\n";
-    	resultLabel.setText(result);
     }
     
     @FXML

@@ -20,6 +20,8 @@ import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 
+import com.google.common.collect.HashMultimap;
+
 import OBOReader.DagBuilder;
 import OBOReader.Term;
 import OBOReader.Terms;
@@ -30,6 +32,7 @@ public class Reader {
 	private String buffer;
 	private DirectedAcyclicGraph<Term, DefaultEdge> annotDagBP,annotDagMF,annotDagCC;
 	private Map<Term,Set<Term>> termMap;
+	private HashMultimap<String,Set<Term>> geneMap;
 	private DagBuilder dags;
 	private HashSet<String> initSet;
 	private HashSet<String> geneList;
@@ -47,6 +50,7 @@ public class Reader {
 		this.annotDagMF = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		this.annotDagCC = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		this.termMap = new HashMap<Term,Set<Term>>();
+		geneMap = HashMultimap.create();
 		this.dags = new DagBuilder();
 		this.geneList = new HashSet<>();
 		try {
@@ -70,16 +74,28 @@ public class Reader {
 		//listAncestors("GO:0050779");
 		//findRootOfDag(annotDagBP);
 		//System.out.println(findCommonAncestor("GO:0051252","GO:0045935").getID());
-		LOGGER.info("WuPalmer Similarity for GO:0050779 and GO:0019219 :  "+WuPalmerSim("GO:0050779", "GO:0019219"));
+		//LOGGER.info("WuPalmer Similarity for GO:0050779 and GO:0019219 :  "+WuPalmerSim("GO:0050779", "GO:0019219"));
 		LOGGER.info("Resnik Similarity for GO:0050779 and GO:0019219 :  "+ResnikSim("GO:0050779", "GO:0019219"));
 		LOGGER.info("DekangLin Similarity for GO:0050779 and GO:0019219 :  "+DekangLinSim("GO:0050779", "GO:0019219"));
 		LOGGER.info("JiangConrathSim Similarity for GO:0050779 and GO:0019219 :  "+JiangConrathSim("GO:0050779", "GO:0019219"));
 		LOGGER.info("Root of BP DAG has these genes associated to it: "+findRootOfDag(annotDagBP).getGeneList());
-		LOGGER.info("Root of CC DAG has these genes associated to it: "+findRootOfDag(annotDagCC).getGeneList());
-		LOGGER.info("Root of MF DAG has these genes associated to it: "+findRootOfDag(annotDagMF).getGeneList());
+		//LOGGER.info("Root of CC DAG has these genes associated to it: "+findRootOfDag(annotDagCC).getGeneList());
+		//LOGGER.info("Root of MF DAG has these genes associated to it: "+findRootOfDag(annotDagMF).getGeneList());
+		
+		LOGGER.info("simUI similarity for gene P05052-appY and P0AGK4-yhbY : "+simUI("P05052-appY","P0AGK4-yhbY"));
+		LOGGER.info("simGIC similarity for gene P05052-appY and P0AGK4-yhbY : "+simGIC("P05052-appY","P0AGK4-yhbY"));
+		//printIC();
 		
 		//LOGGER.info("Logger info messsage.");
-		//System.out.println("The term GO:0050779 has these genes associated to it: "+dags.getTerms().get("GO:0050779").getGeneList());
+		LOGGER.info("The term GO:0008150 has these genes associated to it: "+dags.getTerms().get("GO:0008150").getGeneList());
+	}
+	
+	public void printIC(){
+		Iterator<Term> myiterator =annotDagBP.vertexSet().iterator();
+		while(myiterator.hasNext()){
+			Term thisterm = myiterator.next();
+			LOGGER.info("IC of term "+thisterm.getID()+": "+thisterm.getIC());
+		}
 	}
 	
 	public HashSet<String> getGeneList(){
@@ -188,7 +204,11 @@ public class Reader {
 							if (!thisTerm.addGene(gene)) {
 								//System.out.println("Gene already exists in the Set.");
 							}
-							this.termMap.put(thisTerm, thisDag.getAncestors(thisTerm));
+							Set<Term> ancestors = thisDag.getAncestors(thisTerm);
+							this.termMap.put(thisTerm, ancestors);
+							Set<Term> geneAnnotatedTo = ancestors;
+							geneAnnotatedTo.add(thisTerm);
+							this.geneMap.put(gene, geneAnnotatedTo);
 						}
 					}
 				}
@@ -222,7 +242,7 @@ public class Reader {
 	        		temporaryDag.addEdge(thisAncestor, thisTerm);
 	        	}	
 	        }
-	        //double loop in the same set to find all existing edges between Terms in original dag
+	        //double loop in the same set to find all existing edges between Terms in original DAG
 	        for(Term t1: thisSet)
 	        { 
 	            for(Term t2: thisSet)
@@ -266,7 +286,7 @@ public class Reader {
 	}
 	
 	/**
-	 * This method should be called in the constructor after uppropagation to calculate 
+	 * This method should be called in the constructor and in updateReader after uppropagation to calculate 
 	 * the information content for each term.
 	 * @param thisDag
 	 */
@@ -283,12 +303,13 @@ public class Reader {
 	 * @param thisDag
 	 * @param thisTerm
 	 * @return
-	 */
+	 
 	private double calculateRawIC(DirectedAcyclicGraph<Term, DefaultEdge> thisDag, Term thisTerm){
 		double y = findRootOfDag(thisDag).getGeneList().size();
 		double x = thisTerm.getGeneList().size();
 		return x/y;
 	}
+	*/
 	
 	
 	/**
@@ -386,29 +407,33 @@ public class Reader {
 	}
 	
 	/**
-	 * This method finds the lowest common ancestor (LCA) of two nodes
+	 * This method finds the set of common ancestors of two nodes. 
 	 * @param termA
 	 * @param termB
 	 * @return LCA term
 	 */
-	private Term findCommonAncestor(Term thisTerm1, Term thisTerm2){
+	private HashSet<Term> findCommonAncestor(Term thisTerm1, Term thisTerm2){
 		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
+		HashSet<Term> result = new HashSet<>();
 		if (thisTerm1!=null && thisTerm2!=null){
 			thisDag = dagSelector(thisTerm1);
+			if (!thisDag.equals(dagSelector(thisTerm2))){LOGGER.warning("The two terms are not in the same DAG");}
 			}
 		Set<Term> ancestorSetA = thisDag.getAncestors(thisTerm1);
 		Set<Term> ancestorSetB = thisDag.getAncestors(thisTerm2);
 		//if one term's ancestorSet contains the other term
 		if (ancestorSetA.size() < ancestorSetB.size()){   // term1 is closer to root
 			if(ancestorSetB.contains(thisTerm1)){
-				return thisTerm1;
+				result.add(thisTerm1);
+				return result;
 			}
 		} else if(ancestorSetA.contains(thisTerm2)){ //term2 is closer to root
-				return thisTerm2;
+			result.add(thisTerm2);	
+			return result;
 		} 
 			Set<Term> mutualTermSet = new HashSet<Term>(ancestorSetB);	    
 			mutualTermSet.retainAll(ancestorSetA);  //intersection of two sets
-			Term result = null;
+			
 			for (Term t : mutualTermSet){ 
 				Iterator<DefaultEdge> edgeIterator = thisDag.outgoingEdgesOf(t).iterator();
 				boolean allEdgesPointOut = false;
@@ -423,7 +448,8 @@ public class Reader {
 					//only consider as a result if there was no outgoing 
 					//edge leading to a term in the intersection of the two ancestorSet
 					//that will be the LCA
-					result = t;
+					result.add(t);
+					LOGGER.info("result found for LCA: "+t.getID());
 				}
 			}
 			return result;
@@ -455,6 +481,12 @@ public class Reader {
 		return thisDag;
 	}
 	
+	private void printPath(GraphPath<Term,DefaultEdge> path){
+		//LOGGER.info("Starting vertex: "+path.getStartVertex().getID());
+		path.getVertexList().forEach(x -> LOGGER.info(x.getID()));
+		//LOGGER.info("Ending vertex: "+path.getEndVertex().getID());
+	}
+	
 	/**
 	 * Calculates the distance between two nodes (the ancestor list of one node contains the other).
 	 * This method could be used after LCA has been found.
@@ -466,10 +498,14 @@ public class Reader {
 		int shortestDistance = 100000000;  //initial big distance
 		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		thisDag = dagSelector(thisTerm1);
+		if (!thisDag.equals(dagSelector(thisTerm2))){
+			LOGGER.warning("Two terms are not in the same DAG");
+		}
 		Set<Term> ancestorsTerm1 = thisDag.getAncestors(thisTerm1);
 		Set<Term> ancestorsTerm2 = thisDag.getAncestors(thisTerm2);
 		Term tempTerm = null;
 		Term targetTerm = null;
+		//is this always true???
 		if (ancestorsTerm1.size() < ancestorsTerm2.size()){
 			tempTerm = thisTerm2;
 			targetTerm = thisTerm1;
@@ -478,7 +514,13 @@ public class Reader {
 			targetTerm = thisTerm2;
 		}
 		GraphPath<Term, DefaultEdge> path = new DijkstraShortestPath<Term, DefaultEdge>(thisDag).getPath( targetTerm, tempTerm);
+		//GraphPath<Term, DefaultEdge> reverse = new DijkstraShortestPath<Term, DefaultEdge>(thisDag).getPath( tempTerm, targetTerm);
+		if(path!=null){
+			LOGGER.info("Shortest path:");
+			printPath(path);
+		}
 		shortestDistance = path.getEdgeList().size();
+		LOGGER.info("Shortest distance= "+shortestDistance);
 		/*for(DefaultEdge e : path.getEdgeList()){
 			System.out.println(thisDag.getEdgeSource(e).getID()+" --> "+thisDag.getEdgeTarget(e).getID());
 		}*/
@@ -497,7 +539,7 @@ public class Reader {
 		Term thisTerm2 = dags.getTerms().get(term2); 
 		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		if (thisTerm1!=null && thisTerm2!=null){
-			Term commonAncestor = findCommonAncestor(thisTerm1,thisTerm2);
+			Term commonAncestor = getMICAfromCAset(findCommonAncestor(thisTerm1,thisTerm2));
 			thisDag = dagSelector(thisTerm1);
 			Term rootTerm = findRootOfDag(thisDag);
 			if (term1.equals(term2)){
@@ -510,9 +552,21 @@ public class Reader {
 				result = (2*n3)/(n1+n2+2*n3);
 			}			
 		} else { 
-			System.out.println("Term ID's not given correctly or not present/not in the same tree.");
+			LOGGER.warning("Term ID's not given correctly or not present/not in the same tree.");
 		}
 		return result;
+	}
+	
+	private Term getMICAfromCAset(HashSet<Term> commonancestorSet){
+		Term MICA=(Term) commonancestorSet.toArray()[0];
+		int size = commonancestorSet.size();
+		for(int i=1;i<size;i++){
+			Term nextTerm = (Term)commonancestorSet.toArray()[i];
+			if(MICA.getIC()<nextTerm.getIC()){
+				MICA = nextTerm;
+			}
+		}
+		return MICA;
 	}
 	
 	/**
@@ -524,14 +578,14 @@ public class Reader {
 		Term thisTerm1 = dags.getTerms().get(term1);
 		Term thisTerm2 = dags.getTerms().get(term2); 
 		if (thisTerm1!=null && thisTerm2!=null){
-			Term commonAncestor = findCommonAncestor(thisTerm1,thisTerm2);
+			Term mica = getMICAfromCAset(findCommonAncestor(thisTerm1,thisTerm2));
 			if (term1.equals(term2)){
 				System.out.println("Same terms.");
 			} else {
-				result = commonAncestor.getIC();
+				result = mica.getIC();
 			}			
 		} else { 
-			System.out.println("Term ID's not given correctly or not present/not in the same tree.");
+			LOGGER.warning("Term ID's not given correctly or not present/not in the same tree.");
 		}
 		return result;
 	}
@@ -546,41 +600,101 @@ public class Reader {
 		double result =0;
 		Term thisTerm1 = dags.getTerms().get(term1);
 		Term thisTerm2 = dags.getTerms().get(term2); 
-		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		if (thisTerm1!=null && thisTerm2!=null){
-			thisDag = dagSelector(thisTerm1);
 			if (term1.equals(term2)){
 				System.out.println("Same terms.");
 				result = 1;
 			} else {
 				double description = thisTerm1.getIC() + thisTerm2.getIC();
-				double common = -2*Math.log(calculateRawIC(thisDag,thisTerm1)+calculateRawIC(thisDag,thisTerm2));
+				double common = 2*getMICAfromCAset(findCommonAncestor(thisTerm1,thisTerm2)).getIC();
 				result = common/description;
 			}			
 		} else { 
-			System.out.println("Term ID's not given correctly or not present/not in the same tree.");
+			LOGGER.warning("Term ID's not given correctly or not present/not in the same tree.");
 		}
 		return result;
 	}
 	
 	/**
-	 * JiangConrath Similarity measure without using weights, only considering Link Strength
+	 * JiangConrath Similarity measure without using weights
 	 * @return
 	 */
 	public double JiangConrathSim(String term1, String term2){
 		double result =0;
 		Term thisTerm1 = dags.getTerms().get(term1);
 		Term thisTerm2 = dags.getTerms().get(term2); 
+		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		if (thisTerm1!=null && thisTerm2!=null){
-			Term commonAncestor = findCommonAncestor(thisTerm1,thisTerm2);
+			Term commonAncestor = getMICAfromCAset(findCommonAncestor(thisTerm1,thisTerm2));
+			thisDag = dagSelector(thisTerm1);
 			if (term1.equals(term2)){
 				System.out.println("Same terms.");
 			} else {
-				result = thisTerm1.getIC() + thisTerm2.getIC()-2*commonAncestor.getIC();				
+				double nofGenes = findRootOfDag(thisDag).getGeneList().size();
+				double dJiang = 2*commonAncestor.getIC() - thisTerm1.getIC() - thisTerm2.getIC();
+				double max = -2*Math.log(nofGenes/nofGenes)-2*(-Math.log(1/nofGenes));
+				//maximum possible value of dJiang if the two terms are only annotated with 1 gene, but their common ancestor is the root
+				result = 1-dJiang/max;
 			}			
 		} else { 
-			System.out.println("Term ID's not given correctly or not present/not in the same tree.");
+			LOGGER.warning("Term ID's not given correctly or not present/not in the same tree.");
 		}
+		return result;
+	}
+	/**
+	 * simUI calculation
+	 * @param term1
+	 * @param term2
+	 * @return
+	 */
+	public double simUI(String gene1, String gene2){
+		double result = 0;
+		Set<Term> allTermsforGene1 = new HashSet<Term>();
+		Set<Term> allTermsforGene2 = new HashSet<Term>();
+		geneMap.get(gene1).forEach(set -> allTermsforGene1.addAll(set));
+		geneMap.get(gene2).forEach(set -> allTermsforGene2.addAll(set));
+			/*if (dagSelector((Term)set.toArray()[0]).equals(annotDagBP)){
+				//add to all BP annotations
+				allBP.addAll(set);
+			}
+			if (dagSelector((Term)set.toArray()[0]).equals(annotDagMF)){
+				//add to all MF annotations
+				allMF.addAll(set);
+			}
+			if (dagSelector((Term)set.toArray()[0]).equals(annotDagCC)){
+				//add to all CC annotations
+				allCC.addAll(set);
+			}*/
+			
+		Set<Term> union = new HashSet<Term>(allTermsforGene1);
+		union.addAll(allTermsforGene2);
+		Set<Term> intersection = new HashSet<Term>(allTermsforGene1);
+		intersection.retainAll(allTermsforGene2);
+		double unionValue = (double)union.size();
+		double intersectionValue = (double)intersection.size();
+		result = intersectionValue/unionValue;
+		return result;
+	}
+	
+	public double simGIC(String gene1,String gene2){
+		double result = 0;
+		Set<Term> allTermsforGene1 = new HashSet<Term>();
+		Set<Term> allTermsforGene2 = new HashSet<Term>();
+		geneMap.get(gene1).forEach(set -> allTermsforGene1.addAll(set));
+		geneMap.get(gene2).forEach(set -> allTermsforGene2.addAll(set));
+		Set<Term> union = new HashSet<Term>(allTermsforGene1);
+		union.addAll(allTermsforGene2);
+		Set<Term> intersection = new HashSet<Term>(allTermsforGene1);
+		intersection.retainAll(allTermsforGene2);
+		double unionValue=0;
+		double intersectionValue=0;
+		for (Term t : union){
+			unionValue += t.getIC();
+		}
+		for (Term t : intersection){
+			intersectionValue += t.getIC();
+		}
+		result = intersectionValue/unionValue;
 		return result;
 	}
 }

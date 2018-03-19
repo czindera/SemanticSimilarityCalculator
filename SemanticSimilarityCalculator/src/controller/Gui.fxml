@@ -38,7 +38,7 @@
       <CheckBox fx:id="IC" layoutX="481.0" layoutY="157.0" mnemonicParsing="false" text="IC" />
       <CheckBox fx:id="ND" layoutX="529.0" layoutY="157.0" mnemonicParsing="false" text="ND" />
       <CheckBox fx:id="IEA" layoutX="395.0" layoutY="164.0" mnemonicParsing="false" text="IEA" />
-      <RadioButton layoutX="28.0" layoutY="236.0" mnemonicParsing="false" onAction="#setTermOperation" selected="true" text="Term-wise calculation">
+      <RadioButton fx:id="termwise" layoutX="28.0" layoutY="236.0" mnemonicParsing="false" onAction="#setTermOperation" selected="true" text="Term-wise calculation">
          <toggleGroup>
             <ToggleGroup fx:id="termorgene" />
          </toggleGroup>
