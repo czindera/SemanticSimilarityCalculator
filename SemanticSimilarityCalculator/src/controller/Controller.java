@@ -27,8 +27,13 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Region;
+import javafx.util.Callback;
+
 import org.controlsfx.control.textfield.TextFields;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -41,7 +46,7 @@ import org.jsoup.select.Elements;
 
 public class Controller {
     //ArrayList<String> geneassocList = new ArrayList<>();
-    ObservableList<String> methodList = FXCollections.observableArrayList("Resnik","Lin","Jiang","SimgraSM","simUI","simGIC");
+    ObservableList<String> methodList = FXCollections.observableArrayList("Resnik","Lin","Jiang");
     LinkedHashSet<String> geneAssocSet;
     final String dir;
     Reader annotReader;
@@ -107,6 +112,10 @@ public class Controller {
     @FXML
     private RadioButton termwise;
     @FXML
+    private RadioButton bestMatch;
+    @FXML
+    private RadioButton average;
+    @FXML
     private void updateList(ActionEvent event){
         updateOrganismList();
         organism.setItems(organismList);
@@ -116,6 +125,7 @@ public class Controller {
     @FXML
     private void calculate(){
     	boolean termCalculation = termwise.isSelected();
+    	boolean isBestMatch = bestMatch.isSelected();
     	if (termCalculation){
 			String bpterm1 = bpTerms1.getSelectionModel().getSelectedItem();
 			String bpterm2 = bpTerms2.getSelectionModel().getSelectedItem();
@@ -140,15 +150,6 @@ public class Controller {
 			    	mfresult = String.valueOf(annotReader.JiangConrathSim(mfterm1, mfterm2));
 			    	ccresult = String.valueOf(annotReader.JiangConrathSim(ccterm1, ccterm2));
 					break;
-				case 3:
-					//SimgraSM
-					break;
-				case 4:
-					//simUI
-					break;
-				case 5:
-					//simGIC
-					break;
 				default:
 					bpresult = String.valueOf(annotReader.ResnikSim(bpterm1, bpterm2));
 			    	mfresult = String.valueOf(annotReader.ResnikSim(mfterm1, mfterm2));
@@ -166,22 +167,19 @@ public class Controller {
     		String result ="";
     		switch (simMethod.getSelectionModel().getSelectedIndex()){
     			case 0:
-    				//Resnik
+    				result = "Selected genes Resnik similarity: "+annotReader.geneResnikSim(selectedGene1,selectedGene2,isBestMatch);
     				break;
     			case 1:
-    				//Lin
+    				result = "Selected genes DekangLin similarity: "+annotReader.geneDekangLinSim(selectedGene1,selectedGene2,isBestMatch);
     				break;
     			case 2:
-    				//Jiang
+    				result = "Selected genes JiangConrath similarity: "+annotReader.geneJiangConrathSim(selectedGene1,selectedGene2,isBestMatch);
     				break;
     			case 3:
-    				//simgraSM
+    				result = "Selected genes simUI value: "+annotReader.simUI(selectedGene1,selectedGene2);
     				break;
     			case 4:
-					result = "Selected genes simUI value: "+annotReader.simUI(selectedGene1,selectedGene2);
-					break;
-				case 5:
-					//simGIC
+					result = "Selected genes simGIC value: "+annotReader.simGIC(selectedGene1,selectedGene2);
 					break;
 				default:
 					break;
@@ -200,6 +198,12 @@ public class Controller {
     	ccTerms2.setVisible(false);
     	genes1.setVisible(true);
     	genes2.setVisible(true);
+    	average.setVisible(true);
+    	bestMatch.setVisible(true);
+    	methodList.clear();
+    	methodList = FXCollections.observableArrayList("Resnik","Lin","Jiang","simUI","simGIC");
+    	simMethod.setItems(methodList);
+        simMethod.setValue("Resnik");
     }
     
     @FXML
@@ -212,7 +216,15 @@ public class Controller {
     	ccTerms2.setVisible(true);
     	genes1.setVisible(false);
     	genes2.setVisible(false);
+    	average.setVisible(false);
+    	bestMatch.setVisible(false);
+    	methodList.clear();
+    	methodList = FXCollections.observableArrayList("Resnik","Lin","Jiang");
+    	simMethod.setItems(methodList);
+        simMethod.setValue("Resnik");
     }
+    
+    
     
     private void initAndUpdateAllCombobox(){
     	termListBP = FXCollections.observableArrayList(annotReader.getBPterms());
@@ -220,6 +232,59 @@ public class Controller {
         TextFields.bindAutoCompletion(bpTerms1.getEditor(), bpTerms1.getItems());
         bpTerms2.setItems(termListBP);
         TextFields.bindAutoCompletion(bpTerms2.getEditor(), bpTerms2.getItems());
+        bpTerms1.setTooltip(new Tooltip());
+        
+        bpTerms1.setCellFactory(
+                new Callback<ListView<String>, ListCell<String>>() {
+                    @Override public ListCell<String> call(ListView<String> param) {
+                        final ListCell<String> cell = new ListCell<String>() {
+                            {
+                                super.setPrefWidth(100);
+                            }    
+                            @Override public void updateItem(String item, 
+                                boolean empty) {
+                                    super.updateItem(item, empty);
+                                    if (item != null) {
+                                        setText(item);    
+                                        Tooltip tt = new Tooltip();
+                                        String value = annotReader.getName(item)+"\n"+annotReader.getDef(item); 
+                                        tt.setText(value);
+                                        setTooltip(tt);
+                                    }
+                                    else {
+                                        setText(null);
+                                    }
+                                }
+                    };
+                    return cell;
+                }
+            });
+        
+        bpTerms2.setCellFactory(
+                new Callback<ListView<String>, ListCell<String>>() {
+                    @Override public ListCell<String> call(ListView<String> param) {
+                        final ListCell<String> cell = new ListCell<String>() {
+                            {
+                                super.setPrefWidth(100);
+                            }    
+                            @Override public void updateItem(String item, 
+                                boolean empty) {
+                                    super.updateItem(item, empty);
+                                    if (item != null) {
+                                        setText(item);    
+                                        Tooltip tt = new Tooltip();
+                                        String value = annotReader.getName(item)+"\n"+annotReader.getDef(item); 
+                                        tt.setText(value);
+                                        setTooltip(tt);
+                                    }
+                                    else {
+                                        setText(null);
+                                    }
+                                }
+                    };
+                    return cell;
+                }
+            });
         
         termListCC = FXCollections.observableArrayList(annotReader.getCCterms());
     	ccTerms1.setItems(termListCC);
@@ -227,11 +292,114 @@ public class Controller {
         ccTerms2.setItems(termListCC);
         TextFields.bindAutoCompletion(ccTerms2.getEditor(), ccTerms2.getItems());
         
+        ccTerms1.setCellFactory(
+                new Callback<ListView<String>, ListCell<String>>() {
+                    @Override public ListCell<String> call(ListView<String> param) {
+                        final ListCell<String> cell = new ListCell<String>() {
+                            {
+                                super.setPrefWidth(100);
+                            }    
+                            @Override public void updateItem(String item, 
+                                boolean empty) {
+                                    super.updateItem(item, empty);
+                                    if (item != null) {
+                                        setText(item);    
+                                        Tooltip tt = new Tooltip();
+                                        String value = annotReader.getName(item)+"\n"+annotReader.getDef(item); 
+                                        tt.setText(value);
+                                        setTooltip(tt);
+                                    }
+                                    else {
+                                        setText(null);
+                                    }
+                                }
+                    };
+                    return cell;
+                }
+            });
+        
+        ccTerms2.setCellFactory(
+                new Callback<ListView<String>, ListCell<String>>() {
+                    @Override public ListCell<String> call(ListView<String> param) {
+                        final ListCell<String> cell = new ListCell<String>() {
+                            {
+                                super.setPrefWidth(100);
+                            }    
+                            @Override public void updateItem(String item, 
+                                boolean empty) {
+                                    super.updateItem(item, empty);
+                                    if (item != null) {
+                                        setText(item);    
+                                        Tooltip tt = new Tooltip();
+                                        String value = annotReader.getName(item)+"\n"+annotReader.getDef(item); 
+                                        tt.setText(value);
+                                        setTooltip(tt);
+                                    }
+                                    else {
+                                        setText(null);
+                                    }
+                                }
+                    };
+                    return cell;
+                }
+            });
+        
         termListMF = FXCollections.observableArrayList(annotReader.getMFterms());
     	mfTerms1.setItems(termListMF);
         TextFields.bindAutoCompletion(mfTerms1.getEditor(), mfTerms1.getItems());
         mfTerms2.setItems(termListMF);
         TextFields.bindAutoCompletion(mfTerms2.getEditor(), mfTerms2.getItems());
+        
+        mfTerms1.setCellFactory(
+                new Callback<ListView<String>, ListCell<String>>() {
+                    @Override public ListCell<String> call(ListView<String> param) {
+                        final ListCell<String> cell = new ListCell<String>() {
+                            {
+                                super.setPrefWidth(100);
+                            }    
+                            @Override public void updateItem(String item, 
+                                boolean empty) {
+                                    super.updateItem(item, empty);
+                                    if (item != null) {
+                                        setText(item);    
+                                        Tooltip tt = new Tooltip();
+                                        String value = annotReader.getName(item)+"\n"+annotReader.getDef(item); 
+                                        tt.setText(value);
+                                        setTooltip(tt);
+                                    }
+                                    else {
+                                        setText(null);
+                                    }
+                                }
+                    };
+                    return cell;
+                }
+            });
+        mfTerms2.setCellFactory(
+                new Callback<ListView<String>, ListCell<String>>() {
+                    @Override public ListCell<String> call(ListView<String> param) {
+                        final ListCell<String> cell = new ListCell<String>() {
+                            {
+                                super.setPrefWidth(100);
+                            }    
+                            @Override public void updateItem(String item, 
+                                boolean empty) {
+                                    super.updateItem(item, empty);
+                                    if (item != null) {
+                                        setText(item);    
+                                        Tooltip tt = new Tooltip();
+                                        String value = annotReader.getName(item)+"\n"+annotReader.getDef(item); 
+                                        tt.setText(value);
+                                        setTooltip(tt);
+                                    }
+                                    else {
+                                        setText(null);
+                                    }
+                                }
+                    };
+                    return cell;
+                }
+            });
         
         geneList = FXCollections.observableArrayList(annotReader.getGeneList());
         genes1.setItems(geneList);
@@ -396,7 +564,9 @@ public class Controller {
         genes2.setEditable(true);
         genes1.setVisible(false);
     	genes2.setVisible(false);
-    	resultLabel.setText("Start comparing Terms or Genes.");
+    	average.setVisible(false);
+    	bestMatch.setVisible(false);
+    	resultLabel.setText("Start comparing Terms or Genes.\nIf you want Improved Similarity (ISM) calculation for all methods, check DiShIn.");
     }
     
     @FXML
@@ -441,5 +611,7 @@ public class Controller {
     private CheckBox IKR;
     @FXML
     private CheckBox IRD;
+    @FXML
+    private CheckBox DiShIn;
 
 }

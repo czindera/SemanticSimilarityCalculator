@@ -51,6 +51,14 @@ public class Term {
 		return this.IC;
 	}
 	
+	public String getDef(){
+		return this.def;
+	}
+	
+	public String getName(){
+		return this.name;
+	}
+	
 	public void setIC(double value){
 		this.IC = value;
 	}

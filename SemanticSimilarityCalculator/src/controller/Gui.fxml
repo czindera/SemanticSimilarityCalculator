@@ -59,5 +59,12 @@
       <ComboBox fx:id="genes2" layoutX="333.0" layoutY="300.0" prefHeight="25.0" prefWidth="221.0" />
       <Button layoutX="255.0" layoutY="479.0" mnemonicParsing="false" onAction="#calculate" prefHeight="25.0" prefWidth="79.0" text="Calculate" />
       <Label fx:id="resultLabel" layoutX="46.0" layoutY="534.0" prefHeight="121.0" prefWidth="507.0" text="Label" />
+      <CheckBox fx:id="DiShIn" layoutX="258.0" layoutY="277.0" mnemonicParsing="false" text="DiShIn" />
+      <RadioButton fx:id="average" layoutX="259.0" layoutY="342.0" mnemonicParsing="false" text="Average">
+         <toggleGroup>
+            <ToggleGroup fx:id="avgorbestmatch" />
+         </toggleGroup>
+      </RadioButton>
+      <RadioButton fx:id="bestMatch" layoutX="259.0" layoutY="359.0" mnemonicParsing="false" selected="true" text="Best-Match" toggleGroup="$avgorbestmatch" />
    </children>
 </AnchorPane>
