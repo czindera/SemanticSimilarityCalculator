@@ -66,5 +66,8 @@
          </toggleGroup>
       </RadioButton>
       <RadioButton fx:id="bestMatch" layoutX="259.0" layoutY="359.0" mnemonicParsing="false" selected="true" text="Best-Match" toggleGroup="$avgorbestmatch" />
+      <Text fx:id="BP" layoutX="280.0" layoutY="342.0" strokeType="OUTSIDE" strokeWidth="0.0" text="BP" />
+      <Text fx:id="MF" layoutX="280.0" layoutY="397.0" strokeType="OUTSIDE" strokeWidth="0.0" text="MF" />
+      <Text fx:id="CC" layoutX="280.0" layoutY="456.0" strokeType="OUTSIDE" strokeWidth="0.0" text="CC" />
    </children>
 </AnchorPane>

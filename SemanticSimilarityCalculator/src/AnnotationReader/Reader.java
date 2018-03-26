@@ -86,14 +86,14 @@ public class Reader {
 		//LOGGER.info("Root of MF DAG has these genes associated to it: "+findRootOfDag(annotDagMF).getGeneList());
 		
 		//LOGGER.info("WuPalmer Similarity for GO:0050779 and GO:0019219 :  "+WuPalmerSim("GO:0050779", "GO:0019219"));
-		LOGGER.info("Resnik Similarity for GO:0050779 and GO:0019219 :  "+ResnikSim("GO:0050779", "GO:0019219"));
-		LOGGER.info("DekangLin Similarity for GO:0050779 and GO:0019219 :  "+DekangLinSim("GO:0050779", "GO:0019219"));
-		LOGGER.info("JiangConrathSim Similarity for GO:0050779 and GO:0019219 :  "+JiangConrathSim("GO:0050779", "GO:0019219"));
+		LOGGER.info("Resnik Similarity for GO:0050779 and GO:0019219 :  "+ResnikSim("GO:0050779", "GO:0019219", false));
+		LOGGER.info("DekangLin Similarity for GO:0050779 and GO:0019219 :  "+DekangLinSim("GO:0050779", "GO:0019219",false));
+		LOGGER.info("JiangConrathSim Similarity for GO:0050779 and GO:0019219 :  "+JiangConrathSim("GO:0050779", "GO:0019219",false));
 		LOGGER.info("simUI similarity for gene P05052-appY and P0AGK4-yhbY : "+simUI("P05052-appY","P0AGK4-yhbY"));
 		LOGGER.info("simGIC similarity for gene P05052-appY and P0AGK4-yhbY : "+simGIC("P05052-appY","P0AGK4-yhbY"));
-		LOGGER.info("Resnik Similarity for GO:0050779 and GO:0019219 using DiShIn : "+ResnikSim("GO:0050779", "GO:0019219"));
-		LOGGER.info("DekangLin Similarity for GO:0050779 and GO:0019219 using DiShIn : "+DekangLinSim("GO:0050779", "GO:0019219"));
-		LOGGER.info("JiangConrathSim Similarity for GO:0050779 and GO:0019219 using DiShIn : "+JiangConrathSim("GO:0050779", "GO:0019219"));
+		LOGGER.info("Resnik Similarity for GO:0050779 and GO:0019219 using DiShIn : "+ResnikSim("GO:0050779", "GO:0019219",true));
+		LOGGER.info("DekangLin Similarity for GO:0050779 and GO:0019219 using DiShIn : "+DekangLinSim("GO:0050779", "GO:0019219",true));
+		LOGGER.info("JiangConrathSim Similarity for GO:0050779 and GO:0019219 using DiShIn : "+JiangConrathSim("GO:0050779", "GO:0019219",true));
 
 		//printIC();
 		//findLeavesWithLongestPath();
@@ -152,6 +152,11 @@ public class Reader {
         this.annotDagCC = new DirectedAcyclicGraph<>(DefaultEdge.class);
         this.termMap = new HashMap<>();
         //this.dags = new DagBuilder();
+        geneAnnotations.clear();
+        this.geneAnnotations =  HashMultimap.create();
+        geneMap.clear();
+		this.geneMap = HashMultimap.create();
+		this.geneList = new HashSet<>();
         try {
                 LOGGER.info("Rebuilding and propagating DAGs.");
                 parse(selectedCodes,fileName);
@@ -426,12 +431,18 @@ public class Reader {
 	}
 	
 	/**
-	 * This method finds the set of common ancestors of two nodes. 
+	 * This method finds the set of common ancestors of two nodes.
+	 *
+		 * Computation of lowest common ancestors may be useful, for instance, as part of a procedure 
+		 * for determining the distance between pairs of nodes in a tree: the distance from v to w can 
+		 * be computed as the distance from the root to v, plus the distance from the root to w, minus 
+		 * twice the distance from the root to their lowest common ancestor
+		 * 
 	 * @param termA
 	 * @param termB
 	 * @return LCA term
 	 */
-	private HashSet<Term> findLowestCommonAncestor(Term thisTerm1, Term thisTerm2){
+	private HashSet<Term> findLowestCommonAncestors(Term thisTerm1, Term thisTerm2){
 		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		HashSet<Term> result = new HashSet<>();
 		if (thisTerm1!=null && thisTerm2!=null){
@@ -475,18 +486,11 @@ public class Reader {
 				//edge leading to a term in the intersection of the two ancestorSet
 				//that will be the LCA
 				result.add(t);
-				LOGGER.info("result found for LCA: "+t.getID());
+				//LOGGER.info("result found for LCA: "+t.getID());
 			}
 		}
 		//LOGGER.info("size of common ancestor set: "+result.size());
 		return result;
-		
-		/*
-		 * Computation of lowest common ancestors may be useful, for instance, as part of a procedure 
-		 * for determining the distance between pairs of nodes in a tree: the distance from v to w can 
-		 * be computed as the distance from the root to v, plus the distance from the root to w, minus 
-		 * twice the distance from the root to their lowest common ancestor
-		 * */	
 	}
 	
 	/**
@@ -566,7 +570,7 @@ public class Reader {
 		Term thisTerm2 = dags.getTerms().get(term2); 
 		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		if (thisTerm1!=null && thisTerm2!=null){
-			Term commonAncestor = getMICAfromCAset(findLowestCommonAncestor(thisTerm1,thisTerm2));
+			Term commonAncestor = getMICAfromCAset(findLowestCommonAncestors(thisTerm1,thisTerm2));
 			thisDag = dagSelector(thisTerm1);
 			Term rootTerm = findRootOfDag(thisDag);
 			if (term1.equals(term2)){
@@ -622,8 +626,7 @@ public class Reader {
 	 * @param term2
 	 * @return
 	 */
-	@SuppressWarnings("unused")
-	private int calculatePD(Term term1,Term ancestor){
+	private int calculateNofRoutesToCA(Term term1,Term ancestor){
 		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = dagSelector(term1);
 		List<GraphPath<Term,DefaultEdge>> realPaths;
 		if (!thisDag.equals(dagSelector(ancestor))){LOGGER.warning("Two terms are not in the same DAG!");}
@@ -636,30 +639,73 @@ public class Reader {
 	}
 	
 	/**
-	 * calculates 
+	 * returns the Disjunct Common Ancestor set
 	 * @param term1
 	 * @param term2
 	 * @return
 	 */
-	/*private Term getDishinShare(Term term1,Term term2){
-		HashSet<Term> commonAncestors = findCommonAncestor(term1,term2);
-		
-	}*/
+	private Set<Term> getDishinShare(Term term1,Term term2){
+		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
+		HashSet<Term> result = new HashSet<>();
+		thisDag = dagSelector(term1);
+		if (term1.equals(term2)){
+			LOGGER.warning("Two terms are the same.");
+			result.add(term1);
+			return result;
+		}
+		if (!thisDag.equals(dagSelector(term2))){LOGGER.warning("The two terms are not in the same DAG"); return null;}
+		Set<Term> ancestorSetA = thisDag.getAncestors(term1);
+		Set<Term> ancestorSetB = thisDag.getAncestors(term2);
+		//if one term's ancestorSet contains the other term
+		if (ancestorSetA.size() < ancestorSetB.size()){   // term1 is closer to root and term2 ancestor set include term1
+			if(ancestorSetB.contains(term1)){
+				result.add(term1);
+				return result;
+			}
+		} else {
+			if(ancestorSetA.contains(term2)){ //term2 is closer to root and term1 ancestor set include term2
+				result.add(term2);	
+				return result;
+			} 
+		}
+		Set<Term> mutualTermSet = new HashSet<Term>(ancestorSetB);	    
+		mutualTermSet.retainAll(ancestorSetA);  //intersection of two sets
+		for (Term t : mutualTermSet){
+			if (calculateNofRoutesToCA(term1,t)-calculateNofRoutesToCA(term2,t)!=0){  //this is the PD by definition
+				result.add(t);
+			}
+		}
+		//result.forEach(term -> LOGGER.info("common ancestor with DISHIN: "+term));
+		result.add(getMICAfromCAset(findLowestCommonAncestors(term1,term2))); 
+		//we add the MICA to the set anyway (we can not add twice, so it is safe, even if it already contains)
+		//if the set was empty as there were only 0 PD values, we need the MICA
+		return result;
+	}
+	
+	public double calculateDiShIn(Term term1,Term term2){
+		ArrayList<Double> listOfICs = new ArrayList<>();
+		getDishinShare(term1,term2).forEach(t -> listOfICs.add(t.getIC()));
+		return listOfICs.stream().mapToDouble(val -> val).average().getAsDouble();
+	}
 	
 	/**
 	 * Calculates Resnik Similarity.
 	 * @return
 	 */
-	public double ResnikSim(String term1, String term2){
+	public double ResnikSim(String term1, String term2, boolean isDiShIn){
 		double result = 0;
 		Term thisTerm1 = dags.getTerms().get(term1);
 		Term thisTerm2 = dags.getTerms().get(term2); 
 		if (thisTerm1!=null && thisTerm2!=null){
-			Term mica = getMICAfromCAset(findLowestCommonAncestor(thisTerm1,thisTerm2));
+			Term mica = getMICAfromCAset(findLowestCommonAncestors(thisTerm1,thisTerm2));
 			if (term1.equals(term2)){
 				LOGGER.warning("Same terms.");
 			} 
-			result = mica.getIC();			
+			if (isDiShIn){
+				result = calculateDiShIn(thisTerm1,thisTerm2);
+			} else {
+				result = mica.getIC();	
+			}			
 		} else { 
 			//LOGGER.warning("Term ID's not given correctly or not present/not in the same tree.(Resnik)");
 		}
@@ -672,7 +718,7 @@ public class Reader {
 	 * @param term2
 	 * @return
 	 */
-	public double DekangLinSim(String term1, String term2){
+	public double DekangLinSim(String term1, String term2, boolean isDiShIn){
 		double result =0;
 		Term thisTerm1 = dags.getTerms().get(term1);
 		Term thisTerm2 = dags.getTerms().get(term2); 
@@ -682,7 +728,12 @@ public class Reader {
 				result = 1;
 			} else {
 				double description = thisTerm1.getIC() + thisTerm2.getIC();
-				double common = 2*getMICAfromCAset(findLowestCommonAncestor(thisTerm1,thisTerm2)).getIC();
+				double common =0;
+				if (isDiShIn){
+					common = 2*calculateDiShIn(thisTerm1,thisTerm2);
+				} else {
+					common = 2*getMICAfromCAset(findLowestCommonAncestors(thisTerm1,thisTerm2)).getIC();
+				}
 				result = common/description;
 			}			
 		} else { 
@@ -695,20 +746,24 @@ public class Reader {
 	 * JiangConrath Similarity measure without using weights
 	 * @return
 	 */
-	public double JiangConrathSim(String term1, String term2){
+	public double JiangConrathSim(String term1, String term2, boolean isDiShIn){
 		double result =0;
 		Term thisTerm1 = dags.getTerms().get(term1);
 		Term thisTerm2 = dags.getTerms().get(term2); 
 		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		if (thisTerm1!=null && thisTerm2!=null){
-			Term commonAncestor = getMICAfromCAset(findLowestCommonAncestor(thisTerm1,thisTerm2));
+			Term commonAncestor = getMICAfromCAset(findLowestCommonAncestors(thisTerm1,thisTerm2));
 			thisDag = dagSelector(thisTerm1);
 			if (term1.equals(term2)){
 				System.out.println("Same terms.");
 				result = 1;
 			} else {
 				double nofGenes = findRootOfDag(thisDag).getGeneList().size();
-				double dJiang = 2*commonAncestor.getIC() - thisTerm1.getIC() - thisTerm2.getIC();
+				double value = commonAncestor.getIC();
+				if (isDiShIn){
+					value = calculateDiShIn(thisTerm1,thisTerm2);
+				}
+				double dJiang = 2*value - thisTerm1.getIC() - thisTerm2.getIC();
 				double max = -2*Math.log(nofGenes/nofGenes)-2*(-Math.log(1/nofGenes));
 				//maximum possible value of dJiang if the two terms are only annotated with 1 gene, but their common ancestor is the root
 				result = 1-dJiang/max;
@@ -768,7 +823,7 @@ public class Reader {
 		return result;
 	}
 	
-	public double geneResnikSim(String gene1, String gene2, boolean bestmatch){
+	public double geneResnikSim(String gene1, String gene2, boolean bestmatch, boolean isDiShIn){
 		double finalResult = 0;
 		Set<String> termsForGene1 = geneAnnotations.get(gene1);
 		Set<String> termsForGene2 = geneAnnotations.get(gene2);
@@ -779,11 +834,11 @@ public class Reader {
 			for (String term2 : termsForGene2){
 				if (dags.dagDecider(term1).equals(dags.dagDecider(term2))){
 					//normal average
-					resultList.add(ResnikSim(term1,term2));
+					resultList.add(ResnikSim(term1,term2,isDiShIn));
 					//LOGGER.info("normal Resnik: "+term1 +" and "+term2);
 					//best-match average
-					if (best<ResnikSim(term1,term2)){
-						best = ResnikSim(term1,term2);
+					if (best<ResnikSim(term1,term2,isDiShIn)){
+						best = ResnikSim(term1,term2,isDiShIn);
 					}
 				}
 			}
@@ -796,8 +851,8 @@ public class Reader {
 			for (String term1 : termsForGene1){
 				if (dags.dagDecider(term1).equals(dags.dagDecider(term2))){
 					//best-match average reverse
-					if (best<ResnikSim(term1,term2)){
-						best = ResnikSim(term1,term2);
+					if (best<ResnikSim(term1,term2,isDiShIn)){
+						best = ResnikSim(term1,term2,isDiShIn);
 					}
 				}
 			}
@@ -815,7 +870,7 @@ public class Reader {
 	}
 	
 	
-	public double geneDekangLinSim(String gene1, String gene2, boolean bestmatch){
+	public double geneDekangLinSim(String gene1, String gene2, boolean bestmatch, boolean isDiShIn){
 		double finalResult = 0;
 		Set<String> termsForGene1 = geneAnnotations.get(gene1);
 		Set<String> termsForGene2 = geneAnnotations.get(gene2);
@@ -826,10 +881,10 @@ public class Reader {
 			for (String term2 : termsForGene2){
 				if (dags.dagDecider(term1).equals(dags.dagDecider(term2))){
 					//normal average
-					resultList.add(DekangLinSim(term1,term2));
+					resultList.add(DekangLinSim(term1,term2,isDiShIn));
 					//best-match average
-					if (best<DekangLinSim(term1,term2)){
-						best = DekangLinSim(term1,term2);
+					if (best<DekangLinSim(term1,term2,isDiShIn)){
+						best = DekangLinSim(term1,term2,isDiShIn);
 					}
 				}
 			}
@@ -841,8 +896,8 @@ public class Reader {
 			for (String term1 : termsForGene1){
 				if (dags.dagDecider(term1).equals(dags.dagDecider(term2))){
 					//best-match average reverse
-					if (best<DekangLinSim(term1,term2)){
-						best = DekangLinSim(term1,term2);
+					if (best<DekangLinSim(term1,term2,isDiShIn)){
+						best = DekangLinSim(term1,term2,isDiShIn);
 					}
 				}
 			}
@@ -859,7 +914,7 @@ public class Reader {
 	}
 	
 	
-	public double geneJiangConrathSim(String gene1, String gene2, boolean bestmatch){
+	public double geneJiangConrathSim(String gene1, String gene2, boolean bestmatch, boolean isDiShIn){
 		double finalResult = 0;
 		Set<String> termsForGene1 = geneAnnotations.get(gene1);
 		Set<String> termsForGene2 = geneAnnotations.get(gene2);
@@ -870,10 +925,10 @@ public class Reader {
 			for (String term2 : termsForGene2){
 				if (dags.dagDecider(term1).equals(dags.dagDecider(term2))){
 					//normal average
-					resultList.add(JiangConrathSim(term1,term2));
+					resultList.add(JiangConrathSim(term1,term2,isDiShIn));
 					//best-match average
-					if (best<JiangConrathSim(term1,term2)){
-						best = JiangConrathSim(term1,term2);
+					if (best<JiangConrathSim(term1,term2,isDiShIn)){
+						best = JiangConrathSim(term1,term2,isDiShIn);
 					}
 				}
 			}
@@ -885,8 +940,8 @@ public class Reader {
 			for (String term1 : termsForGene1){
 				if (dags.dagDecider(term1).equals(dags.dagDecider(term2))){
 					//best-match average reverse
-					if (best<JiangConrathSim(term1,term2)){
-						best = JiangConrathSim(term1,term2);
+					if (best<JiangConrathSim(term1,term2,isDiShIn)){
+						best = JiangConrathSim(term1,term2,isDiShIn);
 					}
 				}
 			}

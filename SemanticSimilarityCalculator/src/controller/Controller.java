@@ -32,6 +32,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Region;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
 
 import org.controlsfx.control.textfield.TextFields;
@@ -116,6 +117,14 @@ public class Controller {
     @FXML
     private RadioButton average;
     @FXML
+    private Text BP;
+    @FXML
+    private Text CC;
+    @FXML
+    private Text MF;
+    
+    
+    @FXML
     private void updateList(ActionEvent event){
         updateOrganismList();
         organism.setItems(organismList);
@@ -126,6 +135,7 @@ public class Controller {
     private void calculate(){
     	boolean termCalculation = termwise.isSelected();
     	boolean isBestMatch = bestMatch.isSelected();
+    	boolean isDiShIn = DiShIn.isSelected();
     	if (termCalculation){
 			String bpterm1 = bpTerms1.getSelectionModel().getSelectedItem();
 			String bpterm2 = bpTerms2.getSelectionModel().getSelectedItem();
@@ -136,24 +146,24 @@ public class Controller {
 			String bpresult="",mfresult="",ccresult="";
 			switch (simMethod.getSelectionModel().getSelectedIndex()){
 				case 0: 
-					bpresult = String.valueOf(annotReader.ResnikSim(bpterm1, bpterm2));
-			    	mfresult = String.valueOf(annotReader.ResnikSim(mfterm1, mfterm2));
-			    	ccresult = String.valueOf(annotReader.ResnikSim(ccterm1, ccterm2));
+					bpresult = String.valueOf(annotReader.ResnikSim(bpterm1, bpterm2,isDiShIn));
+			    	mfresult = String.valueOf(annotReader.ResnikSim(mfterm1, mfterm2,isDiShIn));
+			    	ccresult = String.valueOf(annotReader.ResnikSim(ccterm1, ccterm2,isDiShIn));
 			    	break;
 				case 1:
-					bpresult = String.valueOf(annotReader.DekangLinSim(bpterm1, bpterm2));
-			    	mfresult = String.valueOf(annotReader.DekangLinSim(mfterm1, mfterm2));
-			    	ccresult = String.valueOf(annotReader.DekangLinSim(ccterm1, ccterm2));
+					bpresult = String.valueOf(annotReader.DekangLinSim(bpterm1, bpterm2,isDiShIn));
+			    	mfresult = String.valueOf(annotReader.DekangLinSim(mfterm1, mfterm2,isDiShIn));
+			    	ccresult = String.valueOf(annotReader.DekangLinSim(ccterm1, ccterm2,isDiShIn));
 					break;
 				case 2:
-					bpresult = String.valueOf(annotReader.JiangConrathSim(bpterm1, bpterm2));
-			    	mfresult = String.valueOf(annotReader.JiangConrathSim(mfterm1, mfterm2));
-			    	ccresult = String.valueOf(annotReader.JiangConrathSim(ccterm1, ccterm2));
+					bpresult = String.valueOf(annotReader.JiangConrathSim(bpterm1, bpterm2,isDiShIn));
+			    	mfresult = String.valueOf(annotReader.JiangConrathSim(mfterm1, mfterm2,isDiShIn));
+			    	ccresult = String.valueOf(annotReader.JiangConrathSim(ccterm1, ccterm2,isDiShIn));
 					break;
 				default:
-					bpresult = String.valueOf(annotReader.ResnikSim(bpterm1, bpterm2));
-			    	mfresult = String.valueOf(annotReader.ResnikSim(mfterm1, mfterm2));
-			    	ccresult = String.valueOf(annotReader.ResnikSim(ccterm1, ccterm2));
+					bpresult = String.valueOf(annotReader.ResnikSim(bpterm1, bpterm2,isDiShIn));
+			    	mfresult = String.valueOf(annotReader.ResnikSim(mfterm1, mfterm2,isDiShIn));
+			    	ccresult = String.valueOf(annotReader.ResnikSim(ccterm1, ccterm2,isDiShIn));
 			    	break;
 			}
 			String result = "The selected (BP) terms have a similarity value of: "+bpresult+"\n";
@@ -167,13 +177,13 @@ public class Controller {
     		String result ="";
     		switch (simMethod.getSelectionModel().getSelectedIndex()){
     			case 0:
-    				result = "Selected genes Resnik similarity: "+annotReader.geneResnikSim(selectedGene1,selectedGene2,isBestMatch);
+    				result = "Selected genes Resnik similarity: "+annotReader.geneResnikSim(selectedGene1,selectedGene2,isBestMatch,isDiShIn);
     				break;
     			case 1:
-    				result = "Selected genes DekangLin similarity: "+annotReader.geneDekangLinSim(selectedGene1,selectedGene2,isBestMatch);
+    				result = "Selected genes DekangLin similarity: "+annotReader.geneDekangLinSim(selectedGene1,selectedGene2,isBestMatch,isDiShIn);
     				break;
     			case 2:
-    				result = "Selected genes JiangConrath similarity: "+annotReader.geneJiangConrathSim(selectedGene1,selectedGene2,isBestMatch);
+    				result = "Selected genes JiangConrath similarity: "+annotReader.geneJiangConrathSim(selectedGene1,selectedGene2,isBestMatch,isDiShIn);
     				break;
     			case 3:
     				result = "Selected genes simUI value: "+annotReader.simUI(selectedGene1,selectedGene2);
@@ -182,7 +192,8 @@ public class Controller {
 					result = "Selected genes simGIC value: "+annotReader.simGIC(selectedGene1,selectedGene2);
 					break;
 				default:
-					break;
+					result = "Selected genes Resnik similarity: "+annotReader.geneResnikSim(selectedGene1,selectedGene2,isBestMatch,isDiShIn);
+    				break;
     		}
     		resultLabel.setText(result);
     	}
@@ -200,6 +211,9 @@ public class Controller {
     	genes2.setVisible(true);
     	average.setVisible(true);
     	bestMatch.setVisible(true);
+    	BP.setVisible(false);
+    	CC.setVisible(false);
+    	MF.setVisible(false);
     	methodList.clear();
     	methodList = FXCollections.observableArrayList("Resnik","Lin","Jiang","simUI","simGIC");
     	simMethod.setItems(methodList);
@@ -218,6 +232,9 @@ public class Controller {
     	genes2.setVisible(false);
     	average.setVisible(false);
     	bestMatch.setVisible(false);
+    	BP.setVisible(true);
+    	CC.setVisible(true);
+    	MF.setVisible(true);
     	methodList.clear();
     	methodList = FXCollections.observableArrayList("Resnik","Lin","Jiang");
     	simMethod.setItems(methodList);
