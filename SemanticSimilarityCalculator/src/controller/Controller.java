@@ -123,7 +123,10 @@ public class Controller {
     @FXML
     private Text MF;
     
-    
+    /**
+     * The functionality of the update button
+     * @param event
+     */
     @FXML
     private void updateList(ActionEvent event){
         updateOrganismList();
@@ -131,6 +134,9 @@ public class Controller {
         organism.setValue("gene_association.ecocyc.gz");
     }
     
+    /**
+     * The funcionality of the calculate button
+     */
     @FXML
     private void calculate(){
     	boolean termCalculation = termwise.isSelected();
@@ -199,6 +205,10 @@ public class Controller {
     	}
     }
     
+    /**
+     * Action on setting gene wise calculation
+     * @param event
+     */
     @FXML
     private void setGeneOperation(ActionEvent event){
     	bpTerms1.setVisible(false);
@@ -220,6 +230,10 @@ public class Controller {
         simMethod.setValue("Resnik");
     }
     
+    /**
+     * Action on setting term wise calculation
+     * @param event
+     */
     @FXML
     private void setTermOperation(ActionEvent event){
     	bpTerms1.setVisible(true);
@@ -242,7 +256,9 @@ public class Controller {
     }
     
     
-    
+   /**
+    * To init and update comboboxes
+    */
     private void initAndUpdateAllCombobox(){
     	termListBP = FXCollections.observableArrayList(annotReader.getBPterms());
     	bpTerms1.setItems(termListBP);
@@ -425,13 +441,18 @@ public class Controller {
         TextFields.bindAutoCompletion(genes2.getEditor(), genes2.getItems());
     }
     
+    /**
+     * this method calls the initAndUpdateAllCombobox
+     * @param event
+     * @throws IOException
+     */
     @FXML
     private void buildListOfItems(ActionEvent event) throws IOException{
         String selected = organism.getSelectionModel().getSelectedItem().toString();       
         String selectedtxt = selected;
     	selectedtxt.substring(0, selectedtxt.length() - 3);
         selectedtxt = selectedtxt+".txt";
-        String location = dir+"\\"+selected;
+        String location = dir+File.separator+selected;
         
         if (selected.equals("E.Coli(local)")){
         	annotReader.updateReader("E.Coli(local)", getSelectedECodes());
@@ -452,6 +473,11 @@ public class Controller {
         
     }
     
+    /**
+     * If the file not present, this method will be called instead of buildListOfItems
+     * @param event
+     * @throws IOException
+     */
     @FXML
     private void downloadAndBuildListofItems(ActionEvent event) throws IOException{
     	String selectedgz = organism.getSelectionModel().getSelectedItem().toString();       
@@ -459,7 +485,7 @@ public class Controller {
     	String selectedtxt = selectedgz;
     	selectedtxt.substring(0, selectedtxt.length() - 3);
         selectedtxt = selectedtxt+".txt";
-        String location = dir+"\\"+selectedgz;
+        String location = dir+File.separator+selectedgz;
         if(Files.isRegularFile(Paths.get(location))) {
             createAlert("Overwriting existing file.");    
         } else {
@@ -472,7 +498,11 @@ public class Controller {
         initAndUpdateAllCombobox();
     }
     
-    
+    /**
+     * A file downloader that saves the file in the user dir
+     * @param selected
+     * @throws IOException
+     */
     public void FileDownloader(String selected)throws IOException{
     	String urls = "http://geneontology.org/gene-associations/"+selected;
     	URL url = verify(urls);
@@ -483,6 +513,7 @@ public class Controller {
         String path = new File(".").getAbsolutePath();
         path = path.substring(0, path.length() - 2);
         //System.out.println(path);
+        //Paths.get(System.getProperty("user.dir")).resolve(filename);
         FileOutputStream out = new FileOutputStream(path + File.separator + filename);
         in = connection.getInputStream();
         int read = -1;
@@ -497,7 +528,11 @@ public class Controller {
         LOGGER.info("[SYSTEM/INFO]: File Downloaded!");
     }
         
-    
+    /**
+     * part of the file downloader to check if the given url exists
+     * @param url
+     * @return
+     */
     private URL verify(String url){
         if(!url.toLowerCase().startsWith("http://")) {
             return null;
@@ -512,14 +547,18 @@ public class Controller {
         return verifyUrl;
     }
     
-    
+    /*
+     * This method will unzip a Gz file to a .txt file
+     */
     private void gunzipIt(String fileName, String location) throws IOException{
 
         byte[] buffer = new byte[1024];
         GZIPInputStream gzin = null;
         FileOutputStream txtout = null;
         gzin = new GZIPInputStream(new FileInputStream(location));
-        txtout =  new FileOutputStream(dir+"\\"+fileName+".txt");
+        txtout =  new FileOutputStream(dir+File.separator+fileName+".txt");
+        //fileName = fileName + ".txt";
+        //txtout =  new FileOutputStream(Paths.get(System.getProperty("user.dir")).resolve(fileName));
         int len;
         while ((len = gzin.read(buffer)) > 0) {
                txtout.write(buffer, 0, len);
@@ -529,12 +568,18 @@ public class Controller {
         txtout.close();
     }
     
+    /*
+     * creating custom Alert windows with OK button
+     */
     private void createAlert(String message){
         Alert alert = new Alert(AlertType.INFORMATION, message, ButtonType.OK);
         alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
         alert.show();
     }
     
+    /*
+     * To get the list of selected ECodes
+     */
     private HashSet<String> getSelectedECodes(){
         HashSet<String> selectedECodes= new HashSet<>();
         if (EXP.isSelected()){selectedECodes.add("EXP");}
@@ -562,6 +607,9 @@ public class Controller {
         return selectedECodes;
     }
     
+    /**
+     * init method
+     */
     @FXML
     private void initialize(){
         simMethod.setItems(methodList);

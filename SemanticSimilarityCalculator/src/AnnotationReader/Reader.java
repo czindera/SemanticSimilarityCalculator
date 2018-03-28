@@ -80,26 +80,29 @@ public class Reader {
 		//findRootOfDag(annotDagBP);
 		//System.out.println(findCommonAncestor("GO:0051252","GO:0045935").getID());
 		
-		LOGGER.info("Root of BP DAG has these genes associated to it: "+findRootOfDag(annotDagBP).getGeneList());
-		LOGGER.info("The term GO:0008150 has these genes associated to it: "+dags.getTerms().get("GO:0008150").getGeneList());
+		//LOGGER.info("Root of BP DAG has these genes associated to it: "+findRootOfDag(annotDagBP).getGeneList());
+		//LOGGER.info("The term GO:0008150 has these genes associated to it: "+dags.getTerms().get("GO:0008150").getGeneList());
 		//LOGGER.info("Root of CC DAG has these genes associated to it: "+findRootOfDag(annotDagCC).getGeneList());
 		//LOGGER.info("Root of MF DAG has these genes associated to it: "+findRootOfDag(annotDagMF).getGeneList());
 		
 		//LOGGER.info("WuPalmer Similarity for GO:0050779 and GO:0019219 :  "+WuPalmerSim("GO:0050779", "GO:0019219"));
-		LOGGER.info("Resnik Similarity for GO:0050779 and GO:0019219 :  "+ResnikSim("GO:0050779", "GO:0019219", false));
-		LOGGER.info("DekangLin Similarity for GO:0050779 and GO:0019219 :  "+DekangLinSim("GO:0050779", "GO:0019219",false));
-		LOGGER.info("JiangConrathSim Similarity for GO:0050779 and GO:0019219 :  "+JiangConrathSim("GO:0050779", "GO:0019219",false));
+		LOGGER.info("Resnik Similarity for GO:0000105 and GO:0000967 :  "+ResnikSim("GO:0000105", "GO:0000967", false));
+		LOGGER.info("DekangLin Similarity for GO:0000105 and GO:0000967 :  "+DekangLinSim("GO:0000105", "GO:0000967", false));
+		LOGGER.info("JiangConrathSim Similarity for GO:0000105 and GO:0000967 :  "+JiangConrathSim("GO:0000105", "GO:0000967", false));
 		LOGGER.info("simUI similarity for gene P05052-appY and P0AGK4-yhbY : "+simUI("P05052-appY","P0AGK4-yhbY"));
 		LOGGER.info("simGIC similarity for gene P05052-appY and P0AGK4-yhbY : "+simGIC("P05052-appY","P0AGK4-yhbY"));
-		LOGGER.info("Resnik Similarity for GO:0050779 and GO:0019219 using DiShIn : "+ResnikSim("GO:0050779", "GO:0019219",true));
-		LOGGER.info("DekangLin Similarity for GO:0050779 and GO:0019219 using DiShIn : "+DekangLinSim("GO:0050779", "GO:0019219",true));
-		LOGGER.info("JiangConrathSim Similarity for GO:0050779 and GO:0019219 using DiShIn : "+JiangConrathSim("GO:0050779", "GO:0019219",true));
+		LOGGER.info("Resnik Similarity for GO:0000105 and GO:0000967 using DiShIn : "+ResnikSim("GO:0000105", "GO:0000967", true));
+		LOGGER.info("DekangLin Similarity for GO:0000105 and GO:0000967 using DiShIn : "+DekangLinSim("GO:0000105", "GO:0000967", true));
+		LOGGER.info("JiangConrathSim Similarity for GO:0000105 and GO:0000967 using DiShIn : "+JiangConrathSim("GO:0000105", "GO:0000967", true));
 
 		//printIC();
 		//findLeavesWithLongestPath();
 		
 	}
 	
+	/**
+	 * to print all IC values in the BP dag
+	 */
 	public void printIC(){
 		Iterator<Term> myiterator =annotDagBP.vertexSet().iterator();
 		while(myiterator.hasNext()){
@@ -107,19 +110,36 @@ public class Reader {
 			LOGGER.info("IC of term "+thisterm.getID()+": "+thisterm.getIC());
 		}
 	}
-	
+	/**
+	 * 
+	 * @param term
+	 * @return
+	 */
 	public String getName(String term){
 		return this.dags.getTerms().get(term).getName();
 	}
 	
+	/**
+	 * 
+	 * @param term
+	 * @return
+	 */
 	public String getDef(String term){
 		return this.dags.getTerms().get(term).getDef();
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public HashSet<String> getGeneList(){
 		return this.geneList;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public HashSet<String> getBPterms(){
 		HashSet<String> result = new HashSet<>();
 		for (Term t : annotDagBP.vertexSet()){
@@ -128,6 +148,10 @@ public class Reader {
 		return result;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public HashSet<String> getCCterms(){
 		HashSet<String> result = new HashSet<>();
 		for (Term t : annotDagCC.vertexSet()){
@@ -136,6 +160,10 @@ public class Reader {
 		return result;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public HashSet<String> getMFterms(){
 		HashSet<String> result = new HashSet<>();
 		for (Term t : annotDagMF.vertexSet()){
@@ -144,6 +172,11 @@ public class Reader {
 		return result;
 	}
 	
+	/**
+	 * updates the class fields according to a given file, with selected ECodes
+	 * @param fileName
+	 * @param selectedCodes
+	 */
 	public void updateReader(String fileName, HashSet<String> selectedCodes){
         in=null;
         buffer = null;
@@ -206,7 +239,8 @@ public class Reader {
 		if (fileName.equals("E.Coli(local)")){
             annFile = new File(cl.getResource("./AnnotationFiles/E.Coli(local)").getFile());
         } else {
-            annFile = new File(System.getProperty("user.dir")+"\\"+fileName);
+            annFile = new File(System.getProperty("user.dir")+File.separator+fileName);
+            //Paths.get(System.getProperty("user.dir")).resolve(fileName)
         }
 		FileReader fr = new FileReader(annFile);
 		in=new BufferedReader(fr);
@@ -245,7 +279,7 @@ public class Reader {
 	
 	/**
 	 * This method finishes building the annotated DAGs by reading the Map and finding relevant Edges
-	 * @throws CycleFoundException
+	 * 
 	 */
 	private void dagBuilder(){
 		DirectedAcyclicGraph<Term, DefaultEdge> temporaryDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
@@ -526,7 +560,7 @@ public class Reader {
 	 * @return
 	 */
 	private int distanceOnSameWalk(Term thisTerm1, Term thisTerm2){
-		int shortestDistance = 100000000;  //initial big distance
+		int shortestDistance = 100000000;  //initial big distance for testing purposes
 		DirectedAcyclicGraph<Term, DefaultEdge> thisDag = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		thisDag = dagSelector(thisTerm1);
 		if (!thisDag.equals(dagSelector(thisTerm2))){
@@ -588,6 +622,11 @@ public class Reader {
 		return result;
 	}
 	
+	/**
+	 * returns the MICA from a given term Set
+	 * @param commonancestorSet
+	 * @return
+	 */
 	private Term getMICAfromCAset(HashSet<Term> commonancestorSet){
 		Term MICA=(Term) commonancestorSet.toArray()[0];
 		int size = commonancestorSet.size();
@@ -672,11 +711,11 @@ public class Reader {
 		mutualTermSet.retainAll(ancestorSetA);  //intersection of two sets
 		for (Term t : mutualTermSet){
 			if (calculateNofRoutesToCA(term1,t)-calculateNofRoutesToCA(term2,t)!=0){  //this is the PD by definition
-				result.add(t);
+				result.add(t);//if the difference is not 0, it means that the common ancestor has to be added to the result set
 			}
 		}
 		//result.forEach(term -> LOGGER.info("common ancestor with DISHIN: "+term));
-		result.add(getMICAfromCAset(findLowestCommonAncestors(term1,term2))); 
+		result.add(getMICAfromCAset(findLowestCommonAncestors(term1,term2))); //the most informative will be added anyway, except if it was already added
 		//we add the MICA to the set anyway (we can not add twice, so it is safe, even if it already contains)
 		//if the set was empty as there were only 0 PD values, we need the MICA
 		return result;
@@ -690,6 +729,9 @@ public class Reader {
 	
 	/**
 	 * Calculates Resnik Similarity.
+	 * @param term1
+	 * @param term2
+	 * @param isDiShIn
 	 * @return
 	 */
 	public double ResnikSim(String term1, String term2, boolean isDiShIn){
@@ -744,6 +786,9 @@ public class Reader {
 	
 	/**
 	 * JiangConrath Similarity measure without using weights
+	 * @param term1
+	 * @param term2
+	 * @param isDiShIn
 	 * @return
 	 */
 	public double JiangConrathSim(String term1, String term2, boolean isDiShIn){
@@ -823,6 +868,14 @@ public class Reader {
 		return result;
 	}
 	
+	/**
+	 * gene wise calculation method for Resnik
+	 * @param gene1
+	 * @param gene2
+	 * @param bestmatch
+	 * @param isDiShIn
+	 * @return
+	 */
 	public double geneResnikSim(String gene1, String gene2, boolean bestmatch, boolean isDiShIn){
 		double finalResult = 0;
 		Set<String> termsForGene1 = geneAnnotations.get(gene1);
@@ -869,7 +922,14 @@ public class Reader {
 		return finalResult;
 	}
 	
-	
+	/**
+	 * gene wise calculation method for Lin
+	 * @param gene1
+	 * @param gene2
+	 * @param bestmatch
+	 * @param isDiShIn
+	 * @return
+	 */
 	public double geneDekangLinSim(String gene1, String gene2, boolean bestmatch, boolean isDiShIn){
 		double finalResult = 0;
 		Set<String> termsForGene1 = geneAnnotations.get(gene1);
@@ -913,7 +973,14 @@ public class Reader {
 		return finalResult;
 	}
 	
-	
+	/**
+	 * gene wise calculation method for Resnik
+	 * @param gene1
+	 * @param gene2
+	 * @param bestmatch
+	 * @param isDiShIn
+	 * @return
+	 */
 	public double geneJiangConrathSim(String gene1, String gene2, boolean bestmatch, boolean isDiShIn){
 		double finalResult = 0;
 		Set<String> termsForGene1 = geneAnnotations.get(gene1);
